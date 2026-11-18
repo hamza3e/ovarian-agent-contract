@@ -3,8 +3,9 @@
 **Calibrated, auditable agents for ovarian cancer evidence: an agent output contract, a pathology-report agent and an
 agent evaluation protocol, tested across 20 centres on public TCGA-OV data.**
 
-> Status: work in progress (contract v0.1, data pipeline, splits, annotation tooling and rules baseline done; LLM agent
-> and evaluation in progress). No results are reported until they come from the frozen protocol.
+> Status: work in progress. Done: contract v0.1, data pipeline, splits, annotation tooling, rules baseline, LLM extractor
+> and Colab runner. In progress: first model runs and the evaluation protocol. No results are reported until they come
+> from the frozen protocol.
 
 ## The problem, in the terms of a multi-agent clinical system
 A multi-agent decision-support system (imaging, pathology, genomics, clinical text) only works if every agent:
@@ -22,7 +23,10 @@ This repo builds and tests that layer on a real task: pathology reports of high-
 | Site-level splits with a code-enforced test-set lock | `src/oac/splits.py` | done |
 | Annotation guide + offline labelling tool (gold set, pathologist overlap) | `docs/ANNOTATION_GUIDE.md`, `labeling/` | done |
 | Baseline 1: rules | `src/oac/agents/rules_baseline.py` | done |
-| Baseline 2: end-to-end LLM; system: hybrid LLM extraction + evidence verification + calibration + FIGO rules | `src/oac/agents/` | next |
+| LLM extractor: open-weight model on vLLM (schema-constrained, token logprobs) or Claude API; greedy + k samples | `src/oac/llm/`, `src/oac/agents/llm_extractor.py` | done, first runs pending |
+| Baseline 2: end-to-end LLM (extracts and stages directly, answers taken at face value) | `--mode e2e` | done, runs pending |
+| System: hybrid extraction + evidence verification + calibration + FIGO rules | `--mode hybrid`, `src/oac/` | extraction done; calibration and rules next |
+| Colab runner (resumable, pinned model/prompt/code) | `notebooks/colab_extract.ipynb`, `src/oac/run_llm.py` | done |
 | Evaluation protocol (calibration, selective prediction, per-site, conformal, robustness) | `eval/` | next |
 | Super-agent v0 (report + registry, conflict detection, case card) | | planned |
 
@@ -31,6 +35,12 @@ This repo builds and tests that layer on a real task: pathology reports of high-
 uv sync --extra eval
 uv run python -m oac.fetch        # public data, sha256-checked
 uv run pytest -q
+
+# LLM runs (GPU): build the code bundle, upload it to Drive, open notebooks/colab_extract.ipynb in Colab
+uv run python -m oac.bundle
+# Claude API comparison arm (key in a git-ignored .env, see .env.example)
+uv sync --extra api && set -a && . ./.env && set +a
+uv run python -m oac.run_llm --backend anthropic --model claude-opus-5-5 --splits dev,calibration --k 3 --out runs/claude-opus-5-5_hybrid_k3
 ```
 
 ## Data

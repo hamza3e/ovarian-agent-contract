@@ -54,3 +54,38 @@ Rationale: it mirrors a consortium ("built at one centre, calibrated at a second
 - Peritoneal cytology is never found (likely in separate cytology reports or phrased differently).
 
 These are the places where an LLM extractor should show its value. They become hypotheses for the protocol, checked on calibration and test sites, not tuned on them.
+
+## 2026-11-19: LLM extractor, backends, Colab runner
+
+**D13. Primary model: `Qwen/Qwen3-8B-AWQ` @ `4da05a8edb55c6046cce958586c33b61da07bb79` (Apache-2.0), vLLM, float16, non-thinking mode.**
+- Chosen so the system under test fits a 16 GB T4. Colab assigns T4, L4 or A100 at random; the model must not change with it.
+- Larger models on A100 are allowed only as a labelled ablation, never mixed into the main results.
+- Checked: the revision via the Hugging Face API; vLLM's install docs list compute capability 7.5 (T4) as supported.
+- Not yet verified: whether the current vLLM release runs this model on a T4 without problems. A forum log from mid-2025 shows the V1 engine falling back on compute capability below 8.0. The notebook runs a synthetic smoke test first, and the vLLM version is pinned after the first successful run.
+
+**D14. The model-facing schema is not the contract.**
+- The model may say `answered`, `not_stated` or `unclear` and must quote its evidence. Code decides the contract status.
+  - Hybrid mode: an unverified quote becomes `abstained: evidence_not_verified`.
+  - `unclear` becomes `abstained: model_unclear`.
+  - Malformed output becomes `abstained: invalid_model_output` and is never silently repaired.
+- End-to-end baseline: same model and prompt core, plus a directly assigned FIGO 1988 stage. Answers are taken at face value; unverified evidence only adds a warning.
+- Schema property order is fixed, so constrained decoders generate fields in a known order.
+
+**D15. Confidence features recorded per field, before any calibration.**
+- Self-consistency: agreement of k=5 samples with the greedy answer. Sampling uses Qwen3's recommended non-thinking settings: temperature 0.7, top_p 0.8, top_k 20. Per-report seeds come from the case id.
+- Token probabilities of the generated status and value: raw logprobs, located by character span in the JSON text.
+- Evidence match score.
+- `confidence_raw` is the agreement for now. Mapping features to `confidence_calibrated` will be fitted on calibration sites only (next step).
+- If decoded tokens do not concatenate to the output text, the token features are recorded as missing, not approximated.
+
+**D16. Claude API comparison arm: `claude-opus-5-5`, effort `medium`, structured outputs (`output_config.format`).**
+- This model accepts no temperature, so samples are independent calls.
+- The server-side refusal fallback is on. The model that actually served each call is recorded; calls served by a fallback model are flagged and do not count as the pinned arm.
+- Checked: parameter names against the installed SDK (anthropic 2.10.0). Tested only with a mocked client so far; no key yet.
+
+**D17. Reproducible Colab runs.**
+- `oac.bundle` builds a code-only zip, only from a clean commit, and stamps it with that commit hash. Every output records the hash.
+- The runner is resumable (skips finished cases). It refuses to mix prompt, model, mode or k in one output directory.
+- Correction made while writing the notebook: the AI first wrote an expected run time ("20 to 40 minutes on a T4"). It was removed because it was not measured; the manifest records real start and finish times.
+
+**D18. Notebooks are excluded from ruff** (Colab shell magics); the code they call is linted and tested.

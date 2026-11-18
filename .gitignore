@@ -10,3 +10,4 @@ labeling/out/
 labels/raw/
 runs/*
 !runs/.gitkeep
+dist/
