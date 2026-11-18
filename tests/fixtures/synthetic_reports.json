@@ -1,0 +1,35 @@
+{
+  "_note": "SYNTHETIC reports written for tests. Not patient data, not TCGA text.",
+  "reports": [
+    {
+      "case_id": "TCGA-ZZ-0001",
+      "text": "FINAL DIAGNOSIS. A. Ovary, right, salpingo-oophorectomy: High grade serous carcinoma, FIGO grade 3. Tumor involves the ovarian surface. B. Ovary, left, salpingo-oophorectomy: Metastatic carcinoma. C. Omentum, omentectomy: Metastatic high grade serous carcinoma, largest deposit 4.5 cm. D. Uterus, hysterectomy: No tumor identified. E. Pelvic lymph nodes: Metastatic carcinoma in 2/11 lymph nodes. Lymphovascular invasion is present. Peritoneal washings: positive for malignant cells.",
+      "expected": {
+        "grade": "G3", "histotype": "high_grade_serous", "laterality": "bilateral",
+        "omentum_involvement": true, "uterus_involvement": false,
+        "lymph_nodes_positive": 2, "lymph_nodes_examined": 11,
+        "lymphovascular_invasion": true, "peritoneal_cytology": "positive",
+        "residual_disease": "not_stated"
+      }
+    },
+    {
+      "case_id": "TCGA-ZZ-0002",
+      "text": "DIAGNOSIS. Left ovary: Papillary serous adenocarcinoma, poorly differentiated. Right ovary: benign, no tumor. Omentum: negative for malignancy. No lymphovascular invasion identified. Lymph nodes, para-aortic: 0/6 nodes. Washings: negative for malignant cells. Residual tumor less than 1 cm per operative note.",
+      "expected": {
+        "grade": "G3", "histotype": "serous_nos", "laterality": "left",
+        "omentum_involvement": false, "lymph_nodes_positive": 0, "lymph_nodes_examined": 6,
+        "lymphovascular_invasion": false, "peritoneal_cytology": "negative",
+        "residual_disease": "abstained"
+      }
+    },
+    {
+      "case_id": "TCGA-ZZ-0003",
+      "text": "Specimen received in formalin. Gross description only; see addendum.",
+      "expected": {
+        "grade": "not_stated", "histotype": "not_stated", "laterality": "not_stated",
+        "omentum_involvement": "not_stated", "lymphovascular_invasion": "not_stated",
+        "residual_disease": "not_stated"
+      }
+    }
+  ]
+}

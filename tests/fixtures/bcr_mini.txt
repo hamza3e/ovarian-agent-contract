@@ -1,0 +1,6 @@
+bcr_patient_uuid	bcr_patient_barcode	tumor_grade	anatomic_neoplasm_subdivision	lymphovascular_invasion_indicator	clinical_stage	residual_disease_largest_nodule	initial_pathologic_dx_year
+bcr_patient_uuid	bcr_patient_barcode	neoplasm_histologic_grade	anatomic_neoplasm_subdivision	lymphovascular_invasion_present	clinical_stage	tumor_residual_disease	year_of_initial_pathologic_diagnosis
+CDE_ID:	CDE_ID:2003301	CDE_ID:2785839	CDE_ID:2008005	CDE_ID:64727	CDE_ID:3203106	CDE_ID:2785853	CDE_ID:2896960
+synthetic-1	TCGA-ZZ-0001	G3	Bilateral	YES	Stage IIIC	1-10 mm	2008
+synthetic-2	TCGA-ZZ-0002	GX	Left	[Not Available]	Stage IC	No Macroscopic disease	2005
+synthetic-3	TCGA-ZZ-0003	[Not Available]	[Not Available]	NO	[Not Available]	[Not Available]	[Not Available]

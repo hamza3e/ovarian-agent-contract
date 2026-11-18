@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env
+# raw data and anything containing report text stays local
+data/
+labeling/out/
+labels/raw/
+runs/*
+!runs/.gitkeep
