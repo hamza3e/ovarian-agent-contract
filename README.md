@@ -36,7 +36,8 @@ uv sync --extra eval
 uv run python -m oac.fetch        # public data, sha256-checked
 uv run pytest -q
 
-# LLM runs (GPU): build the code bundle, upload it to Drive, open notebooks/colab_extract.ipynb in Colab
+# LLM runs (GPU): writes dist/colab_extract_run.ipynb with the code embedded;
+# open it in VS Code (Google Colab extension) or Colab web and pick a GPU runtime
 uv run python -m oac.bundle
 # Claude API comparison arm (key in a git-ignored .env, see .env.example)
 uv sync --extra api && set -a && . ./.env && set +a

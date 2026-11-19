@@ -89,3 +89,9 @@ These are the places where an LLM extractor should show its value. They become h
 - Correction made while writing the notebook: the AI first wrote an expected run time ("20 to 40 minutes on a T4"). It was removed because it was not measured; the manifest records real start and finish times.
 
 **D18. Notebooks are excluded from ruff** (Colab shell magics); the code they call is linted and tested.
+
+**D19. Colab runs from VS Code; the code travels inside the notebook.**
+- The author runs the notebook from VS Code through Google's official Colab extension (kernel: Colab GPU server). Cell outputs are saved in the notebook file in this repo, so Claude Code can read errors and fix cells. Claude Code cannot start the Colab kernel itself.
+- The Colab server cannot read local files. So `oac.bundle` now writes `dist/colab_extract_run.ipynb`: the template notebook with a base64 code zip embedded, taken from a clean commit and stamped with it. Nothing has to be uploaded.
+- Results go to Google Drive. Third-party write-ups say `drive.mount()` does not work in the extension; the extension's own docs list a "Mount Google Drive to Server" command. The notebook tries `drive.mount()` first, then tells the user to run that command. Not yet verified on this machine.
+- Tests check that the embedded bundle has code only (no data, runs or labels) and that the notebook cell unpacks it.
