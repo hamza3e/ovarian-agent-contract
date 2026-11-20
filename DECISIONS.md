@@ -95,3 +95,18 @@ These are the places where an LLM extractor should show its value. They become h
 - The Colab server cannot read local files. So `oac.bundle` now writes `dist/colab_extract_run.ipynb`: the template notebook with a base64 code zip embedded, taken from a clean commit and stamped with it. Nothing has to be uploaded.
 - Results go to Google Drive. Third-party write-ups say `drive.mount()` does not work in the extension; the extension's own docs list a "Mount Google Drive to Server" command. The notebook tries `drive.mount()` first, then tells the user to run that command. Not yet verified on this machine.
 - Tests check that the embedded bundle has code only (no data, runs or labels) and that the notebook cell unpacks it.
+
+## 2026-11-20: first GPU run
+
+**D20. First run on a Colab T4 (VS Code extension), facts from the saved notebook log.**
+- Environment: Tesla T4 15 GB, vllm 0.34.0, torch 2.14.0+cu130. The model loaded in float16 with about 5.9 GB used, and the synthetic smoke test passed. The concern in D13 (T4 support) is resolved for this version, which is now pinned in the notebook.
+- Hybrid run, dev + calibration: 96 of 184 reports written to Drive. Each batch of 32 took 35 to 45 minutes (greedy + 5 samples). The Colab server then dropped while the 4th batch was running; the in-flight batch was lost.
+- Changes:
+  - Results are now written every 16 reports, not 32, to lose less per disconnect.
+  - The notebook explains how to resume; the runner skips finished reports.
+  - Batch composition can change vLLM numerics slightly. Each invocation is recorded in the manifest. Prompt, model, mode and k are unchanged, as the runner enforces.
+- Synthetic smoke outputs (3 reports, a check of the plumbing, not a result):
+  - laterality was `not_stated` on the two-part bilateral example;
+  - the histotype and grade rules were not followed on "papillary serous adenocarcinoma, poorly differentiated" (the model gave `high_grade_serous` and `high_grade`, where the guide says `serous_nos` and `G3`).
+
+  The prompt is **not** changed during this run. Any prompt revision will be made on dev sites only and followed by a full re-run (logged as a new prompt version).
