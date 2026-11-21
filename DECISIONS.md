@@ -139,3 +139,12 @@ These are the places where an LLM extractor should show its value. They become h
   - token texts are decoded with the tokenizer;
   - token ids and greedy token logprobs are kept in raw.jsonl, so features can be recomputed without a GPU.
 - Agent version 0.2.0. v0.1 runs are kept as a record. v0.2 writes to new folders (`*_p0.2_*`), and the whole v0.2 run uses one GPU type.
+
+**D22. Evaluation building blocks (code only, no results yet).**
+- `oac.staging`: FIGO 1988 lower bound from answered findings. The upper bound is always IV, because distant disease, other pelvic tissue and extra-omental peritoneum are not in schema v0.1. Test cases mirror the study guide's calculator.
+- `oac.metrics`:
+  - decision outcomes against gold (`not_stated` scored, `unsure` excluded) and silver (answered values only);
+  - ECE, Brier, risk–coverage, AURC, case-level bootstrap.
+  - Correction found by a unit test: equal-count ECE bins split tied confidences. Ties are the norm here (agreement 1.0 for most fields), so bins now never split equal values.
+- `oac.calibrate`: logistic-regression calibrator on extraction features, fitted on calibration sites only.
+- `eval/PROTOCOL.draft.md`: written, **not frozen**. One open decision for the author: which labels train the calibrator.
