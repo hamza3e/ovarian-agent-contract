@@ -174,3 +174,16 @@ These are the places where an LLM extractor should show its value. They become h
   - max_tokens 3,072 and context 12,288.
   - The Claude API does not accept length or item bounds, so the Claude arm receives the schema without them and code checks the bounds.
   - The smoke test now checks that the bounds held and that nothing was truncated, because grammar engines can enforce length bounds unsoundly.
+
+**D25. v0.3 runs (L4) and freezing the system.**
+- Both runs are complete: hybrid in 34 minutes, e2e in 13.
+- Truncations: hybrid 0/184 greedy and 0/920 samples; e2e 1/184 greedy.
+- The smoke check confirmed that the evidence bounds held.
+- Dev sites (all 109) against silver, answered/agreeing, hybrid:
+  - grade: v0.1 98/64, v0.2 87/81, v0.3 102/91;
+  - laterality: 56/49, 64/58, 79/71;
+  - LVI: 29/29, 25/25, 28/28.
+  - e2e v0.3: grade 101/91, laterality 85/77, LVI 31/31.
+- Hybrid dev abstentions: v0.3 has 44 (41 evidence not verified, 3 model unclear). v0.1 had 82; v0.2 had 228, mostly invalid output from truncation.
+- Peritoneal cytology and residual disease are `not_stated` in all 109 dev reports. This needs a gold-set check: are washings really absent from these reports?
+- **Decision: prompt and system frozen at v0.3 for the evaluation protocol.** No further prompt changes before the test run. Any later change would be a new, separately reported version.

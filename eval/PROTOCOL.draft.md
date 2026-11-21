@@ -29,10 +29,10 @@ abstain when unsure produce **more trustworthy** report findings and FIGO stage 
 | ID | System | Notes |
 |---|---|---|
 | R | rules baseline (`agents/rules_baseline.py` v0.1.0) | no model |
-| E | Qwen3-8B-AWQ @ 4da05a8, prompt v0.2.0, end to end, greedy | answers taken at face value; stages directly |
+| E | Qwen3-8B-AWQ @ 4da05a8, prompt v0.3.0, end to end, greedy | answers taken at face value; stages directly |
 | H-raw | same model and prompt, hybrid: greedy + 5 samples, code-verified evidence | confidence = self-consistency |
 | H-cal | H-raw + calibrator (§5) + abstention threshold (§5) | the proposed system |
-| C (optional) | Claude API arm, same prompt v0.2.0 | only if a key is available; reported separately |
+| C (optional) | Claude API arm, same prompt v0.3.0 | only if a key is available; reported separately |
 
 ## 4. References
 - **Gold:** human labels, blind to model outputs.
@@ -83,6 +83,15 @@ Exploratory (labelled as such):
 - H-cal selective accuracy no higher than E at matched coverage.
 - Calibration that fails to transfer (test ECE much higher than calibration ECE).
 
+Decoding settings for E and H:
+- vLLM 0.34.0 on an NVIDIA L4, float16;
+- max_tokens 3,072, context 12,288;
+- evidence bounded by the grammar (3 quotes × 200 characters);
+- greedy plus 5 samples at temperature 0.7, top_p 0.8, top_k 20; seed 20261119.
+
+The prompt and system are frozen at v0.3 for this protocol: no further prompt changes.
+
 ## 9. Already seen before freezing (disclosure)
-- Dev-site outputs of prompt v0.1 against silver (DECISIONS D12, D21), and synthetic smoke tests.
+- Dev-site outputs of prompts v0.1, v0.2 and v0.3 against silver (DECISIONS D12, D21, D24, D25), and synthetic smoke tests.
+- Calibration-site outputs: only finish reasons and evidence string lengths, for the v0.2 truncation check (D24). No calibration-site accuracy.
 - No calibration-site or test-site metric has been computed. The calibration-site v0.1 outputs exist on disk but were not analysed.
