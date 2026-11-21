@@ -46,7 +46,11 @@ abstain when unsure produce **more trustworthy** report findings and FIGO stage 
 ## 5. Calibration and abstention (fitted on calibration sites only, then frozen)
 - **Features:** see `src/oac/calibrate.py`.
 - **Model:** L2 logistic regression, C = 1.0.
-- **Training labels:** gold decisions on the 20 calibration reports **[DECISION NEEDED: gold only, or gold + silver for grade/laterality/LVI on all 75 calibration reports]**.
+- **Training labels (decided 21 Nov, author):**
+  - gold decisions on the 20 calibration reports;
+  - plus silver checks on all 75 calibration reports, for answered grade (2-tier compatible), laterality and LVI.
+
+  When gold and silver both exist for the same field, gold wins. Sensitivity analysis: the same calibrator fitted on gold only, reported next to it.
 - **Threshold τ:** the lowest calibrated confidence such that selective accuracy on calibration decisions is ≥ 0.95. Decisions below τ become `abstained: low_confidence`. If no τ reaches 0.95, use the τ that maximises selective accuracy at coverage ≥ 0.5, and report that it fell short.
 
 ## 6. Endpoints (test sites)

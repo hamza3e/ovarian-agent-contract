@@ -148,3 +148,5 @@ These are the places where an LLM extractor should show its value. They become h
   - Correction found by a unit test: equal-count ECE bins split tied confidences. Ties are the norm here (agreement 1.0 for most fields), so bins now never split equal values.
 - `oac.calibrate`: logistic-regression calibrator on extraction features, fitted on calibration sites only.
 - `eval/PROTOCOL.draft.md`: written, **not frozen**. One open decision for the author: which labels train the calibrator.
+
+**D23. Calibrator training labels (author decision, 21 Nov):** gold (20 calibration reports) plus silver for answered grade (2-tier compatible), laterality and LVI on all 75 calibration reports. Gold wins where both exist. A gold-only fit is reported as a sensitivity analysis. Rationale: gold alone gives few errors to learn from. Grade is compared on the 2-tier scale so that correct "high grade" answers are not counted as wrong.
