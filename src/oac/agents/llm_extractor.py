@@ -26,7 +26,7 @@ from oac.llm.features import field_probs
 from oac.llm.prompt import Prompt
 
 AGENT_NAME = "llm_extractor"
-AGENT_VERSION = "0.2.0"
+AGENT_VERSION = "0.3.0"
 
 
 @dataclass(frozen=True)
@@ -55,6 +55,8 @@ def parse_fields(obj: dict | None) -> dict[str, FieldAnswer]:
             out[name] = FieldAnswer("invalid", None, "")
             continue
         status, value, ev = raw["status"], raw.get("value"), raw.get("evidence") or ""
+        if isinstance(ev, list):  # v0.3: list of quotes; the verifier splits on " ... "
+            ev = " ... ".join(str(q) for q in ev if str(q).strip())
         if status == "answered" and not check_value(name, value):
             out[name] = FieldAnswer("invalid", None, str(ev))
             continue

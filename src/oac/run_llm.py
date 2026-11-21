@@ -81,7 +81,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--dtype", default="half")
-    ap.add_argument("--max-model-len", type=int, default=8192)
+    ap.add_argument("--max-model-len", type=int, default=12288)
     ap.add_argument("--gpu-mem", type=float, default=0.90)
     ap.add_argument("--effort", default="medium", help="Claude API effort level")
     args = ap.parse_args(argv)

@@ -150,3 +150,27 @@ These are the places where an LLM extractor should show its value. They become h
 - `eval/PROTOCOL.draft.md`: written, **not frozen**. One open decision for the author: which labels train the calibrator.
 
 **D23. Calibrator training labels (author decision, 21 Nov):** gold (20 calibration reports) plus silver for answered grade (2-tier compatible), laterality and LVI on all 75 calibration reports. Gold wins where both exist. A gold-only fit is reported as a sensitivity analysis. Rationale: gold alone gives few errors to learn from. Grade is compared on the 2-tier scale so that correct "high grade" answers are not counted as wrong.
+
+## 2026-11-21: v0.2 run on an L4, prompt v0.3
+
+**D24. v0.2 results (L4, vllm 0.34.0), operational check and dev-site look; v0.3 fixes runaway evidence.**
+- Both v0.2 runs are complete: 184 reports each, hybrid in 43 minutes, e2e in 15. Token features were computed for 184/184 (the D21 fix works).
+- **Regression: 15/184 greedy hybrid outputs (and 13/184 e2e) hit the 2,048-token limit.** v0.1 had none. A truncated output is invalid JSON, so every field of that report abstains.
+  - The truncations were counted on dev and calibration sites. Only finish reasons and string lengths were inspected, no accuracy.
+  - Two failure modes in the evidence strings:
+    - loops of repeated " ... " quotes (e.g. 181 parts, 2 distinct);
+    - single quotes of 1,000 to 6,000 characters.
+
+  The v0.2 instruction "up to three quotes" invited the loops.
+- Dev sites, excluding the 11 reports truncated in either v0.2 run (98 left), against silver:
+  - grade agreement rose from 58 to 79 of answered (hybrid), with `high_grade` answers down from 29 to 6;
+  - laterality: answered 50 → 62, agreeing 43 → 56;
+  - histotype abstentions halved (21 → 10);
+  - LVI unchanged (all agree).
+  - Evidence-not-verified abstentions rose (58 → 96, all fields), partly from the D21 guard.
+- **v0.3 (schema, not wording):**
+  - evidence is a JSON array of at most 3 quotes, each at most 200 characters, enforced by the decoding grammar, so a loop cannot run away;
+  - e2e reasoning is capped at 400 characters;
+  - max_tokens 3,072 and context 12,288.
+  - The Claude API does not accept length or item bounds, so the Claude arm receives the schema without them and code checks the bounds.
+  - The smoke test now checks that the bounds held and that nothing was truncated, because grammar engines can enforce length bounds unsoundly.

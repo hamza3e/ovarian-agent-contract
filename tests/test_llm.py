@@ -17,11 +17,11 @@ from oac.llm.schema import extraction_schema
 
 
 def _blank() -> dict:
-    return {f: {"status": "not_stated", "value": None, "evidence": ""} for f in FIELD_NAMES}
+    return {f: {"status": "not_stated", "value": None, "evidence": []} for f in FIELD_NAMES}
 
 
 def _answer(obj: dict, field: str, value, quote: str) -> dict:
-    obj[field] = {"status": "answered", "value": value, "evidence": quote}
+    obj[field] = {"status": "answered", "value": value, "evidence": quote.split(" ... ")}  # v0.3: list of quotes
     return obj
 
 
@@ -125,8 +125,8 @@ def test_hallucinated_evidence_abstains_in_hybrid_but_not_in_e2e(rep):
 
 def test_unclear_and_invalid_become_abstentions(rep):
     obj = _blank()
-    obj["laterality"] = {"status": "unclear", "value": None, "evidence": "Ovary, left"}
-    obj["grade"] = {"status": "answered", "value": None, "evidence": "grade"}  # answered without a value
+    obj["laterality"] = {"status": "unclear", "value": None, "evidence": ["Ovary, left"]}
+    obj["grade"] = {"status": "answered", "value": None, "evidence": ["grade"]}  # answered without a value
     out, _ = _run(rep, obj)
     assert out.get("laterality").abstain_reason == "model_unclear"
     assert out.get("grade").abstain_reason == "invalid_model_output"
@@ -257,5 +257,30 @@ def test_token_texts_use_tokenizer_decode_not_bpe_pieces():
 
 def test_prompt_v02_states_grade_and_quote_rules():
     p = prompt_mod.build()
-    assert prompt_mod.PROMPT_VERSION == "0.2.0"
-    assert "3-tier grade" in p.system and '" ... "' in p.system
+    assert prompt_mod.PROMPT_VERSION == "0.3.0"
+    assert "3-tier grade" in p.system and "never repeat a quote" in p.system
+
+
+# ------------------------------------------------------------------ v0.3: bounded evidence list
+def test_evidence_is_a_bounded_list_in_the_grammar():
+    from oac.llm.schema import MAX_QUOTE_CHARS, MAX_QUOTES, without_length_bounds
+
+    s = extraction_schema()
+    ev = s["properties"]["grade"]["properties"]["evidence"]
+    assert ev["maxItems"] == MAX_QUOTES and ev["items"]["maxLength"] == MAX_QUOTE_CHARS
+    loop = _answer(_blank(), "grade", "G3", " ... ".join(["FIGO grade 3"] * 4))
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(loop, s)
+    long = _answer(_blank(), "grade", "G3", "x" * (MAX_QUOTE_CHARS + 1))
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(long, s)
+    api = without_length_bounds(s)
+    assert "maxItems" not in json.dumps(api) and "maxLength" not in json.dumps(api)
+    jsonschema.validate(loop, api)  # the Claude arm gets no bounds; code checks happen downstream
+
+
+def test_list_evidence_is_verified_part_by_part(rep):
+    obj = _blank()
+    obj["laterality"] = {"status": "answered", "value": "bilateral", "evidence": ["Ovary, right", "Ovary, left"]}
+    out, raw = _run(rep, obj)
+    assert out.get("laterality").status is Status.answered and raw["features"]["laterality"]["evidence_parts"] == 2

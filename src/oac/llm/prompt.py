@@ -14,7 +14,7 @@ from oac.contract import sha256_text
 from oac.fields import FIELDS
 from oac.llm.schema import extraction_schema
 
-PROMPT_VERSION = "0.2.0"  # v0.2: grade rule and evidence format made explicit (DECISIONS D21)
+PROMPT_VERSION = "0.3.0"  # v0.2: grade rule, quote format (D21); v0.3: evidence is a bounded list (D24)
 OPEN, CLOSE = "<report>", "</report>"
 
 _SYSTEM_HEAD = """You extract findings from one ovarian cancer pathology report into JSON.
@@ -26,10 +26,10 @@ For every field return:
 - status: "answered" if the report states the finding; "not_stated" if the report does not contain it;
   "unclear" if the report mentions it but you cannot decide (contradiction, illegible, ambiguous).
 - value: the finding, using only the allowed values; null unless status is "answered".
-- evidence: verbatim text copied from the report that supports the answer; "" if status is "not_stated".
-  Each quote must be one continuous piece of the report (at most about 25 words), copied exactly, including
-  typos and line breaks replaced by spaces. If the support is in separate places, give up to three quotes
-  separated by " ... ". Never join words from different places into one quote.
+- evidence: a list of one to three short quotes copied verbatim from the report that support the answer;
+  [] if status is "not_stated". Each quote is one continuous piece of the report (at most about 25 words),
+  copied exactly, including typos, with line breaks replaced by spaces. Use separate quotes for separate places;
+  never join words from different places into one quote, and never repeat a quote.
 
 Do not infer findings the report does not support. Absence of a finding is "not_stated", not "no".
 Report only what the pathology report says; do not use outside clinical knowledge to fill gaps.

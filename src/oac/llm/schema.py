@@ -14,6 +14,12 @@ from oac.fields import FIELDS, FieldSpec
 
 MODEL_STATUSES = ("answered", "not_stated", "unclear")
 
+# Evidence is a bounded list of short quotes (v0.3). Bounds live in the grammar, so a decoding loop cannot run
+# away: in v0.2, free-text evidence ran into the token limit on 15/184 greedy outputs (DECISIONS D24).
+MAX_QUOTES = 3
+MAX_QUOTE_CHARS = 200
+EVIDENCE_SCHEMA = {"type": "array", "items": {"type": "string", "maxLength": MAX_QUOTE_CHARS}, "maxItems": MAX_QUOTES}
+
 # FIGO 1988 stages (TCGA era). Used only by the end-to-end baseline, which is asked to stage directly.
 FIGO_1988_STAGES = ("IA", "IB", "IC", "IIA", "IIB", "IIC", "IIIA", "IIIB", "IIIC", "IV")
 
@@ -37,11 +43,21 @@ def _field_schema(spec: FieldSpec) -> dict:
         "properties": {
             "status": {"type": "string", "enum": list(MODEL_STATUSES)},
             "value": _value_schema(spec),
-            "evidence": {"type": "string"},
+            "evidence": EVIDENCE_SCHEMA,
         },
         "required": ["status", "value", "evidence"],
         "additionalProperties": False,
     }
+
+
+def without_length_bounds(schema: object) -> object:
+    """Copy of a schema without min/max length and item bounds (the Claude API rejects them; code checks them)."""
+    if isinstance(schema, dict):
+        return {k: without_length_bounds(v) for k, v in schema.items()
+                if k not in ("maxLength", "minLength", "maxItems", "minItems")}
+    if isinstance(schema, list):
+        return [without_length_bounds(v) for v in schema]
+    return schema
 
 
 def extraction_schema(with_stage: bool = False) -> dict:
@@ -50,7 +66,7 @@ def extraction_schema(with_stage: bool = False) -> dict:
         props["figo_stage"] = {
             "type": "object",
             "properties": {  # reasoning first, so the stage is generated after it
-                "reasoning": {"type": "string"},
+                "reasoning": {"type": "string", "maxLength": 400},
                 "value": {"anyOf": [{"type": "string", "enum": list(FIGO_1988_STAGES)}, {"type": "null"}]},
             },
             "required": ["reasoning", "value"],

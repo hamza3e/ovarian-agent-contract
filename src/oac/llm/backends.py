@@ -16,6 +16,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
+from oac.llm.schema import without_length_bounds
+
 
 @dataclass(frozen=True)
 class Request:
@@ -95,7 +97,7 @@ class VLLMBackend:
     name = "vllm"
 
     def __init__(self, model: str, revision: str, *, dtype: str = "half", max_model_len: int = 8192,
-                 gpu_memory_utilization: float = 0.90, max_tokens: int = 2048,
+                 gpu_memory_utilization: float = 0.90, max_tokens: int = 3072,
                  sampling: dict[str, float] | None = None, chat_template_kwargs: dict | None = None):
         from vllm import LLM
 
@@ -178,7 +180,7 @@ class AnthropicBackend:
             model=self.model, max_tokens=self.max_tokens,
             system=[{"type": "text", "text": r.system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": r.user}],
-            output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": r.schema}},
+            output_config={"effort": self.effort, "format": {"type": "json_schema", "schema": without_length_bounds(r.schema)}},
         )
         if self.fallbacks:
             resp = self._client.beta.messages.create(betas=[self.FALLBACK_BETA], fallbacks="default", **kw)
