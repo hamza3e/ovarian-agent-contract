@@ -34,3 +34,13 @@ def test_verify_output_warns_on_unverified_answer():
     checked = verify_output(out, TEXT)
     assert not checked.fields[0].evidence[0].verified
     assert any("without verified evidence" in w for w in checked.warnings)
+
+
+def test_fuzzy_match_cannot_flip_meaning_words():
+    from oac.evidence import guard_ok, locate
+
+    text = "B. Ovary, left, salpingo-oophorectomy: Metastatic carcinoma. Omentum: no tumor identified. Nodes 0/6."
+    assert not locate("Ovary, right, salpingo-oophorectomy: Metastatic carcinoma", text).verified
+    assert locate("Ovary, left, salpingo-oophorectomy: Metastatic carcinma", text).verified  # OCR-style typo is fine
+    assert not locate("Omentum: tumor identified. Nodes 2/6", text).verified
+    assert guard_ok("no tumor in 2 nodes", "no tumour in 2 nodes") and not guard_ok("2 nodes", "0 nodes")

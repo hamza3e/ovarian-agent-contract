@@ -110,3 +110,32 @@ These are the places where an LLM extractor should show its value. They become h
   - the histotype and grade rules were not followed on "papillary serous adenocarcinoma, poorly differentiated" (the model gave `high_grade_serous` and `high_grade`, where the guide says `serous_nos` and `G3`).
 
   The prompt is **not** changed during this run. Any prompt revision will be made on dev sites only and followed by a full re-run (logged as a new prompt version).
+
+## 2026-11-21: prompt v0.2 from dev-site observations
+
+**D21. Dev-site look at the v0.1 runs (development observation against silver labels, not a result).**
+- Two complete v0.1 runs on dev + calibration, 184 reports each: hybrid k=5 and e2e. Both on a T4.
+- Laterality, dev (cases with a silver label): rules answered 28 (10 agree, 79 unanswered); e2e answered 72 (66 agree); hybrid answered 56 (49 agree). The hypothesis from D12 holds: the LLM adds most where findings are spread across specimen parts.
+- LVI agreed with silver in every answered case for all three systems.
+- Residual disease was never answered (109/109 `not_stated`).
+- Grade: in 33 dev reports the hybrid said `high_grade` where silver says G3. A keyword scan found 3-tier wording ("poorly differentiated", "grade 3", ...) in 23 of those 33 reports, which breaks the annotation rule. This is the same error the synthetic smoke test showed (D20).
+- Histotype: 24 dev abstentions with `evidence_not_verified`. In 20 of them every word of the quote occurs in the report: the model joined text from separate places into one quote.
+- **Bug: token probabilities were never computed** (`tokens_aligned` false for 109/109).
+  - vLLM 0.34 returns BPE pieces ("Ġ", "Ċ") in `Logprob.decoded_token`, so the tokens did not concatenate to the output text.
+  - The alignment check did its job: it recorded the features as missing rather than approximating them. But the feature is lost for v0.1, because raw.jsonl kept no token ids.
+  - Checked locally with the model's tokenizer: decoding token by token reproduces the output text in 40/40 dev outputs.
+- Self-consistency alone discriminates little: in 849 of 904 answered dev fields, all 5 samples agreed with the greedy answer.
+
+**Changes in v0.2** (made on dev observations only; calibration and test sites not inspected for this):
+- Prompt v0.2.0:
+  - an explicit grade rule (any 3-tier grade wins over "high/low grade");
+  - evidence must be continuous verbatim pieces, up to three, separated by " ... ".
+- Verifier:
+  - multi-part quotes are split on " ... ", and every part must be found;
+  - **new guard: a fuzzy match may not differ in meaning-changing words** (left/right/bilateral, negations, positive/negative, numbers).
+    - Found by a new unit test: "Ovary, right, ...: Metastatic carcinoma" fuzzy-verified at 93 against "Ovary, left, ...", so a swapped side passed.
+    - Re-checking the v0.1 dev evidence with the guard rejects 16 of 248 fuzzy-verified spans. Most are numbers or words the model added to the quote.
+- Backend:
+  - token texts are decoded with the tokenizer;
+  - token ids and greedy token logprobs are kept in raw.jsonl, so features can be recomputed without a GPU.
+- Agent version 0.2.0. v0.1 runs are kept as a record. v0.2 writes to new folders (`*_p0.2_*`), and the whole v0.2 run uses one GPU type.

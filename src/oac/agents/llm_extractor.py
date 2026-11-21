@@ -19,14 +19,14 @@ from typing import Any
 
 from oac.contract import AgentOutput, EvidenceSpan, FieldResult, Provenance, Status, sha256_text
 from oac.data import Report
-from oac.evidence import locate
+from oac.evidence import all_verified, locate_parts
 from oac.fields import FIELD_NAMES, check_value
 from oac.llm.backends import Backend, Completion, Request, parse_json
 from oac.llm.features import field_probs
 from oac.llm.prompt import Prompt
 
 AGENT_NAME = "llm_extractor"
-AGENT_VERSION = "0.1.0"
+AGENT_VERSION = "0.2.0"
 
 
 @dataclass(frozen=True)
@@ -63,7 +63,7 @@ def parse_fields(obj: dict | None) -> dict[str, FieldAnswer]:
 
 
 def _evidence(quote: str, text: str) -> list[EvidenceSpan]:
-    return [locate(quote, text)] if quote.strip() else []
+    return locate_parts(quote, text) if quote.strip() else []
 
 
 def build_output(report: Report, greedy: Completion, samples: list[Completion], *, mode: str, backend: Backend,
@@ -82,13 +82,14 @@ def build_output(report: Report, greedy: Completion, samples: list[Completion], 
     for name in FIELD_NAMES:
         a = g[name]
         spans = _evidence(a.evidence, report.text) if a.status == "answered" else []
-        verified = any(s.verified for s in spans)
+        verified = all_verified(spans)
         votes = Counter(sp[name].key for sp in s_parsed)
         agreement = votes[a.key] / len(s_parsed) if s_parsed else None
         feats[name] = {
             "greedy_status": a.status, "greedy_value": a.value,
             "agreement": agreement, "n_samples": len(s_parsed), "n_distinct": len(votes),
-            "evidence_verified": verified, "evidence_score": spans[0].match_score if spans else None,
+            "evidence_verified": verified, "evidence_score": min(s.match_score or 0.0 for s in spans) if spans else None,
+            "evidence_parts": len(spans),
             "evidence_len": len(a.evidence), **probs[name],
         }
 
@@ -114,6 +115,7 @@ def build_output(report: Report, greedy: Completion, samples: list[Completion], 
     raw = {
         "case_id": report.case_id, "site": report.site, "mode": mode,
         "greedy": {"text": greedy.text, "finish_reason": greedy.finish_reason, "meta": greedy.meta,
+                   "token_logprobs": [lp for _, lp in greedy.tokens] if greedy.tokens else None,
                    "tokens_aligned": probs[FIELD_NAMES[0]]["p_status"] is not None},
         "samples": [{"text": c.text, "finish_reason": c.finish_reason, "meta": c.meta} for c in samples],
         "features": feats,

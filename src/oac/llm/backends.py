@@ -78,6 +78,16 @@ class FakeBackend:
 
 
 # --------------------------------------------------------------------------------------------- vLLM
+def token_texts(tokenizer: Any, ids: list[int], logprobs: list[float]) -> list[tuple[str, float]]:
+    """Text of each generated token, decoded one by one with the model's tokenizer.
+
+    vLLM 0.34 returns BPE pieces ("Ġ", "Ċ") in ``Logprob.decoded_token``, which do not concatenate to the output
+    text (DECISIONS D21). Special tokens (end of turn) decode to "".
+    """
+    return [(tokenizer.decode([i], skip_special_tokens=True), lp) for i, lp in zip(ids, logprobs, strict=True)]
+
+
+
 QWEN3_NONTHINKING_SAMPLING = {"temperature": 0.7, "top_p": 0.8, "top_k": 20}  # Qwen3 model card, non-thinking mode
 
 
@@ -96,6 +106,7 @@ class VLLMBackend:
         self.chat_template_kwargs = chat_template_kwargs if chat_template_kwargs is not None else {"enable_thinking": False}
         self.engine_args = {"dtype": dtype, "max_model_len": max_model_len, "gpu_memory_utilization": gpu_memory_utilization}
         self._llm = LLM(model=model, revision=revision, seed=0, **self.engine_args)
+        self._tokenizer = self._llm.get_tokenizer()
 
     def _params(self, schema: dict, *, greedy: bool, n: int, seed: int):
         from vllm import SamplingParams
@@ -121,11 +132,12 @@ class VLLMBackend:
         for res in results:
             comps = []
             for o in res.outputs:
+                ids = list(o.token_ids)
                 toks = None
                 if o.logprobs is not None:
-                    pairs = zip(o.token_ids, o.logprobs, strict=True)
-                    toks = [(lp[tid].decoded_token or "", float(lp[tid].logprob)) for tid, lp in pairs]
-                comps.append(Completion(o.text, toks, o.finish_reason, {"n_tokens": len(o.token_ids)}))
+                    lps = [float(lp[tid].logprob) for tid, lp in zip(ids, o.logprobs, strict=True)]
+                    toks = token_texts(self._tokenizer, ids, lps)
+                comps.append(Completion(o.text, toks, o.finish_reason, {"n_tokens": len(ids), "token_ids": ids}))
             out.append(comps)
         return out
 

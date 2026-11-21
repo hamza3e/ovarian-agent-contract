@@ -214,3 +214,48 @@ def test_anthropic_backend_records_served_model_and_refusals(monkeypatch):
     assert kw["output_config"]["format"]["type"] == "json_schema" and "temperature" not in kw
     assert kw["betas"] == [AnthropicBackend.FALLBACK_BETA] and kw["fallbacks"] == "default"
     assert len(be.generate(reqs[:1], greedy=False, n=3, seed=0)[0]) == 3
+
+
+# ------------------------------------------------------------------ v0.2: multi-part evidence, token text decoding
+def test_multipart_quote_needs_every_part(rep):
+    from oac.evidence import all_verified, locate_parts
+
+    ok = locate_parts("Ovary, right ... Ovary, left", rep.text)
+    assert len(ok) == 2 and all_verified(ok)
+    half = locate_parts("Ovary, right ... both ovaries replaced by tumour", rep.text)
+    assert len(half) == 2 and not all_verified(half)
+    assert not all_verified([])
+    out, raw = _run(rep, _answer(_blank(), "laterality", "bilateral", "Ovary, right ... Ovary, left"))
+    lat = out.get("laterality")
+    assert lat.status is Status.answered and len(lat.evidence) == 2
+    assert raw["features"]["laterality"]["evidence_parts"] == 2
+    out, _ = _run(rep, _answer(_blank(), "laterality", "bilateral", "Ovary, right ... both ovaries replaced by tumour"))
+    assert out.get("laterality").abstain_reason == "evidence_not_verified"
+
+
+def test_stitched_quote_is_not_verified(rep):
+    from oac.evidence import all_verified, locate_parts
+
+    stitched = "Ovary, right, salpingo-oophorectomy: Metastatic carcinoma"  # words from parts A and B joined
+    assert not all_verified(locate_parts(stitched, rep.text))
+
+
+def test_token_texts_use_tokenizer_decode_not_bpe_pieces():
+    from oac.llm.backends import token_texts
+
+    class Tok:  # mimics a byte-level BPE tokenizer: pieces differ from decoded text
+        pieces = {1: "{Ċ", 2: "Ġ\"a\"", 3: "<|im_end|>"}
+        text = {1: "{\n", 2: ' "a"', 3: ""}
+
+        def decode(self, ids, skip_special_tokens=False):
+            return "".join(self.text[i] for i in ids)
+
+    toks = token_texts(Tok(), [1, 2, 3], [-0.1, -0.2, 0.0])
+    assert "".join(t for t, _ in toks) == '{\n "a"'
+    assert [lp for _, lp in toks] == [-0.1, -0.2, 0.0]
+
+
+def test_prompt_v02_states_grade_and_quote_rules():
+    p = prompt_mod.build()
+    assert prompt_mod.PROMPT_VERSION == "0.2.0"
+    assert "3-tier grade" in p.system and '" ... "' in p.system

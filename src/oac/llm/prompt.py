@@ -14,7 +14,7 @@ from oac.contract import sha256_text
 from oac.fields import FIELDS
 from oac.llm.schema import extraction_schema
 
-PROMPT_VERSION = "0.1.0"
+PROMPT_VERSION = "0.2.0"  # v0.2: grade rule and evidence format made explicit (DECISIONS D21)
 OPEN, CLOSE = "<report>", "</report>"
 
 _SYSTEM_HEAD = """You extract findings from one ovarian cancer pathology report into JSON.
@@ -26,11 +26,17 @@ For every field return:
 - status: "answered" if the report states the finding; "not_stated" if the report does not contain it;
   "unclear" if the report mentions it but you cannot decide (contradiction, illegible, ambiguous).
 - value: the finding, using only the allowed values; null unless status is "answered".
-- evidence: a short verbatim quote (at most about 25 words) copied from the report that supports the answer;
-  "" if status is "not_stated". Copy the words exactly as they appear, including typos.
+- evidence: verbatim text copied from the report that supports the answer; "" if status is "not_stated".
+  Each quote must be one continuous piece of the report (at most about 25 words), copied exactly, including
+  typos and line breaks replaced by spaces. If the support is in separate places, give up to three quotes
+  separated by " ... ". Never join words from different places into one quote.
 
 Do not infer findings the report does not support. Absence of a finding is "not_stated", not "no".
 Report only what the pathology report says; do not use outside clinical knowledge to fill gaps.
+
+Grade: if the report gives any 3-tier grade (grade 1, 2 or 3; G1-G3; well, moderately or poorly
+differentiated), the answer is G1, G2 or G3, even if the report also says "high grade" or "low grade".
+Use high_grade or low_grade only when no 3-tier grade appears anywhere in the report.
 
 Fields:
 """
