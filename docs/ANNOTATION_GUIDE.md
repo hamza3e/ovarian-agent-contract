@@ -12,7 +12,7 @@ The tool shows a short rule per field; this guide is the full version.
 3. **Evidence:** for every answered field, select the shortest text span(s) that support it and click "+ evidence". Two short spans are better than one long paragraph.
 4. **OCR noise:** read through it ("lort ovary" = left ovary; "Quentum" = omentum). If OCR destroys the meaning, use Unsure and write "OCR" in notes.
 5. **Whole report:** final diagnosis, gross description, addenda and synoptic sections all count. If they conflict, the final diagnosis or addendum wins. Note the conflict.
-6. Work at a steady pace; ~3–4 minutes per report. The tool records time per case, and we report annotation cost.
+6. Work at a steady pace; ~3–4 minutes per report. The tool records **active** time per case (tool v0.2: the tab must be visible and focused, and pauses longer than 2 minutes without mouse or keyboard input are not counted), and we report annotation cost. Mark a case done before exporting, so the export includes it.
 
 ## Fields
 

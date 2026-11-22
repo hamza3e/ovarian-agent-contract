@@ -108,7 +108,7 @@ def build(annotator: str, which: str) -> Path:
     ids = sorted(ids)
     rng.shuffle(ids)  # interleave splits so the annotator cannot tell dev from test
     payload = {
-        "tool_version": "0.1",
+        "tool_version": "0.2",  # v0.2: active-time timer (idle > 2 min and hidden tabs not counted)
         "schema_version": SCHEMA_VERSION,
         "guideline_version": GUIDELINE_VERSION,
         "annotator": annotator,

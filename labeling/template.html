@@ -64,6 +64,7 @@ textarea{width:100%;min-height:54px}
   <button id="export">Export JSON</button>
   <label class="small"><input type="file" id="import" accept="application/json" hidden><button id="importBtn" type="button">Import</button></label>
   <span class="small" id="savestate"></span>
+  <span class="small" id="timer" title="Active time on this case: counts only while this tab is visible and focused and you used mouse or keyboard in the last 2 minutes"></span>
 </header>
 <main>
   <section id="report" aria-label="Report text"><div class="small" id="caseinfo"></div><pre id="text"></pre></section>
@@ -79,7 +80,30 @@ let storageOk = true;
 function load(){ try{ const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; }catch(e){ storageOk=false; return null; } }
 let state = load() || {labels:{}, idx:0};
 let idx = Math.min(state.idx || 0, P.cases.length - 1);
-let t0 = Date.now();
+// Active-time timer (tool v0.2). Time counts only while the tab is visible and focused and there was input
+// (mouse, keys, scroll, selection) in the last IDLE_MS. Each tick adds at most MAX_STEP_MS, so a sleeping laptop
+// or a throttled background tab cannot add a long gap. v0.1 counted wall-clock time from page load.
+const IDLE_MS = 120000, TICK_MS = 1000, MAX_STEP_MS = 5000;
+function activeStep(now, lastTick, lastInput, visible, focused){
+  if(!visible || !focused || now - lastInput >= IDLE_MS) return 0;
+  return Math.max(0, Math.min(now - lastTick, MAX_STEP_MS));
+}
+let lastTick = Date.now(), lastInput = Date.now(), pendingMs = 0;
+function tick(){
+  const now = Date.now();
+  pendingMs += activeStep(now, lastTick, lastInput, document.visibilityState === 'visible', document.hasFocus());
+  lastTick = now;
+}
+function fmt(sec){ const m = Math.floor(sec/60), s = sec % 60; return m + ':' + String(s).padStart(2,'0'); }
+function showTimer(){
+  const L = state.labels[P.cases[idx].case_id], base = (L && L.seconds) || 0;
+  const idle = Date.now() - lastInput >= IDLE_MS || document.visibilityState !== 'visible' || !document.hasFocus();
+  document.getElementById('timer').textContent = 'active ' + fmt(base + Math.floor(pendingMs/1000)) + (idle ? ' (paused)' : '');
+}
+['mousemove','mousedown','keydown','wheel','touchstart','selectionchange','focus'].forEach(ev =>
+  document.addEventListener(ev, () => { lastInput = Date.now(); }, {capture:true, passive:true}));
+document.addEventListener('scroll', () => { lastInput = Date.now(); }, {capture:true, passive:true});
+setInterval(() => { tick(); showTimer(); }, TICK_MS);
 function save(){
   state.idx = idx;
   try{ localStorage.setItem(KEY, JSON.stringify(state)); storageOk = true; }catch(e){ storageOk = false; }
@@ -177,7 +201,12 @@ function renderJump(){
   document.getElementById('who').textContent = P.annotator + ' · ' + P.set + ' set · ' + n + '/' + P.cases.length + ' done · guideline v' + P.guideline_version;
 }
 function renderAll(){ renderText(); renderForm(); renderJump(); }
-function leave(){ const L = lab(cur().case_id); L.seconds = (L.seconds||0) + Math.round((Date.now()-t0)/1000); t0 = Date.now(); }
+function leave(){
+  tick();
+  const L = lab(cur().case_id), add = Math.round(pendingMs/1000);
+  if(!L.timing) L.timing = (L.seconds || 0) > 0 ? 'wallclock_v0.1' : 'active_v0.2';  // v0.1 seconds are kept but flagged
+  L.seconds = (L.seconds||0) + add; pendingMs = 0;
+}
 function go(i){ if(i<0 || i>=P.cases.length) return; leave(); idx = i; save(); renderAll(); document.getElementById('report').scrollTop = 0; document.getElementById('form').scrollTop = 0; }
 
 function validate(){
@@ -214,7 +243,9 @@ document.getElementById('import').onchange = e => {
       if(!confirm('File is for ' + d.annotator + '/' + d.set + '. Import anyway?')) return; }
     state.labels = d.labels || {}; save(); renderAll(); });
 };
-save(); renderAll();
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden'){ leave(); save(); } });
+window.addEventListener('pagehide', () => { leave(); save(); });
+save(); renderAll(); showTimer();
 })();
 </script>
 </body>

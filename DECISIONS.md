@@ -187,3 +187,19 @@ These are the places where an LLM extractor should show its value. They become h
 - Hybrid dev abstentions: v0.3 has 44 (41 evidence not verified, 3 model unclear). v0.1 had 82; v0.2 had 228, mostly invalid output from truncation.
 - Peritoneal cytology and residual disease are `not_stated` in all 109 dev reports. This needs a gold-set check: are washings really absent from these reports?
 - **Decision: prompt and system frozen at v0.3 for the evaluation protocol.** No further prompt changes before the test run. Any later change would be a new, separately reported version.
+
+## 2026-11-23: label tool v0.2 (active-time timer)
+
+**D26. Annotation time is measured as active time.**
+- The author's first gold case showed 1,463 s. Tool v0.1 counted wall-clock time from page load, so this included reading the guide and idle time. It was not a usable annotation-cost number.
+- Claude Code proposed and implemented a timer that counts a second only while:
+  - the tab is visible and focused;
+  - there was mouse, keyboard, scroll or selection input in the last 2 minutes.
+
+  Each tick adds at most 5 s, so a sleeping laptop cannot add a gap. Time is flushed when the tab is hidden or closed.
+- Cases timed under v0.1 keep their seconds but are flagged `timing: wallclock_v0.1` and are excluded from cost statistics. New cases are flagged `active_v0.2`.
+- Checked:
+  - case order is unchanged after rebuilding (same seed), and browser-stored labels carry over (same storage key);
+  - the step logic is unit-tested via node (`tests/test_label_tool.py`: hidden tab, unfocused window, 2-minute idle edge, sleep cap, clock going back);
+  - the page renders in headless Chromium.
+- Limitation: reading without touching mouse or keyboard for more than 2 minutes is under-counted. This is reported with the cost numbers.
