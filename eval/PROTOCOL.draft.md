@@ -39,6 +39,7 @@ abstain when unsure produce **more trustworthy** report findings and FIGO stage 
   - 70 reports: 15 dev, 20 calibration, 35 test, by the author, following `docs/ANNOTATION_GUIDE.md`.
   - 15 test reports are double-labelled by a pathologist (inter-annotator agreement: Cohen's κ per field).
   - Gold `unsure` labels are excluded from scoring.
+  - Annotator training: before the gold set, the author labels 5 practice reports from dev sites (`configs/practice_sample.json`, outside the gold set) and gets field-by-field feedback from Claude Code. Gold labels themselves get no AI feedback on values; only format, evidence-span and timing checks.
 - **Silver:** TCGA clinical table: grade, laterality, LVI and FIGO 1988 stage, for all reports.
   - Used only to check answered values, never to score `not_stated`.
   - Silver is a registry, not truth: disagreements are reported as such, and a sample is adjudicated (§7).

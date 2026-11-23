@@ -1,7 +1,7 @@
 """Gold-set sampling and the offline labelling tool.
 
     python -m oac.annotate sample                       # -> configs/gold_sample.json (case ids only)
-    python -m oac.annotate build --annotator NAME --set gold|pathologist
+    python -m oac.annotate build --annotator NAME --set gold|pathologist|practice
                                                         # -> labeling/out/label_<set>_<NAME>.html (git-ignored)
 
 Humans label blind to model outputs; the tool never shows registry (silver) values.
@@ -23,6 +23,7 @@ SEED = 20261118
 GOLD_TARGET = {"dev": 15, "calibration": 20, "test": 35}
 PATHOLOGIST_N = 15  # drawn from the test part of the gold set
 GOLD_FILE = REPO_ROOT / "configs" / "gold_sample.json"
+PRACTICE_FILE = REPO_ROOT / "configs" / "practice_sample.json"  # annotator training, never scored
 TEMPLATE = REPO_ROOT / "labeling" / "template.html"
 OUT_DIR = REPO_ROOT / "labeling" / "out"
 GUIDELINE_VERSION = "0.1"
@@ -100,13 +101,28 @@ def sample() -> dict:
     return out
 
 
+def practice_ids() -> list[str]:
+    """Training cases: dev sites only, disjoint from the gold set and the pathologist overlap (checked here)."""
+    ids = json.loads(PRACTICE_FILE.read_text(encoding="utf-8"))["cases"]
+    spec = json.loads(GOLD_FILE.read_text(encoding="utf-8"))
+    scored = {c for part in spec["gold"].values() for c in part} | set(spec["pathologist_overlap"])
+    dev = {r.case_id for r in select(load_ov_reports(), "dev", purpose="annotation")}
+    bad = [c for c in ids if c in scored or c not in dev]
+    if bad:
+        raise ValueError(f"practice cases must be unused dev reports: {bad}")
+    return ids
+
+
 def build(annotator: str, which: str) -> Path:
     spec = json.loads(GOLD_FILE.read_text(encoding="utf-8"))
-    ids = [c for part in spec["gold"].values() for c in part] if which == "gold" else spec["pathologist_overlap"]
     texts = {r.case_id: r.text for r in load_ov_reports()}
-    rng = random.Random(f"{SEED}-{which}")
-    ids = sorted(ids)
-    rng.shuffle(ids)  # interleave splits so the annotator cannot tell dev from test
+    if which == "practice":
+        ids = practice_ids()  # fixed order, short to long
+    else:
+        ids = [c for part in spec["gold"].values() for c in part] if which == "gold" else spec["pathologist_overlap"]
+        rng = random.Random(f"{SEED}-{which}")
+        ids = sorted(ids)
+        rng.shuffle(ids)  # interleave splits so the annotator cannot tell dev from test
     payload = {
         "tool_version": "0.2",  # v0.2: active-time timer (idle > 2 min and hidden tabs not counted)
         "schema_version": SCHEMA_VERSION,
@@ -135,7 +151,7 @@ def main() -> None:
     sub.add_parser("sample")
     b = sub.add_parser("build")
     b.add_argument("--annotator", required=True)
-    b.add_argument("--set", dest="which", choices=["gold", "pathologist"], default="gold")
+    b.add_argument("--set", dest="which", choices=["gold", "pathologist", "practice"], default="gold")
     args = ap.parse_args()
     if args.cmd == "sample":
         out = sample()

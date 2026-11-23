@@ -42,3 +42,15 @@ def test_active_step():
     js = _snippet("activeStep") + f"console.log(JSON.stringify({args}.map(a => activeStep(...a))));"
     out = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
     assert json.loads(out) == [want for _, want in cases.values()]
+
+
+def test_practice_cases_are_unscored_dev_reports():
+    from oac.annotate import GOLD_FILE, PRACTICE_FILE
+    from oac.splits import DEV_SITES
+
+    practice = json.loads(PRACTICE_FILE.read_text(encoding="utf-8"))["cases"]
+    spec = json.loads(GOLD_FILE.read_text(encoding="utf-8"))
+    scored = {c for part in spec["gold"].values() for c in part} | set(spec["pathologist_overlap"])
+    assert practice and len(set(practice)) == len(practice)
+    assert all(c.split("-")[1] in DEV_SITES for c in practice)
+    assert not scored & set(practice)

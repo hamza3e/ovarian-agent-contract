@@ -203,3 +203,16 @@ These are the places where an LLM extractor should show its value. They become h
   - the step logic is unit-tested via node (`tests/test_label_tool.py`: hidden tab, unfocused window, 2-minute idle edge, sleep cap, clock going back);
   - the page renders in headless Chromium.
 - Limitation: reading without touching mouse or keyboard for more than 2 minutes is under-counted. This is reported with the cost numbers.
+
+**D27. Annotator training round before gold labelling (23 Nov).**
+- After two gold cases the author asked for feedback on the values, because the field terms were unfamiliar. One case took 17 active minutes.
+- Claude Code declined to review gold values. Test and calibration gold is the reference for the system, and AI corrections would make it partly AI-labelled.
+- Instead, Claude Code proposed a training round:
+  - 5 practice reports (`configs/practice_sample.json`): dev sites, outside the gold set and the pathologist overlap, ordered short to long, spread over the three dev sites;
+  - selection by keyword coverage of the fields;
+  - the author labels them and gets field-by-field feedback with explanations;
+  - practice labels are never scored.
+
+  The author approved it.
+- Checks: `practice_ids()` refuses any case that is in the gold set, in the overlap, or outside dev sites, and a unit test checks this.
+- After training, the author re-reviews their own first two gold cases without AI input.

@@ -1,0 +1,6 @@
+{
+  "purpose": "Annotator training only. Dev-site reports outside the gold set and the pathologist overlap; never scored.",
+  "rule": "Unused dev reports ranked by how many fields their text touches (keyword check), spread over the three dev sites, ordered short to long.",
+  "chosen_utc": "2026-11-23",
+  "cases": ["TCGA-24-1436", "TCGA-13-A5FT", "TCGA-42-2589", "TCGA-24-1564", "TCGA-42-2582"]
+}
