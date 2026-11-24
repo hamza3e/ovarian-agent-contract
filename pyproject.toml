@@ -15,6 +15,9 @@ dependencies = [
 eval = ["scikit-learn>=1.4", "matplotlib>=3.8"]
 api = ["anthropic>=2.10"]  # Claude API comparison arm
 gpu = ["vllm"]  # Colab only; the notebook pins the version it ran with
+agent = [
+    "langgraph>=1.2.24",
+]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.5", "jsonschema>=4.21"]

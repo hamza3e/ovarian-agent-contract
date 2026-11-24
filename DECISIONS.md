@@ -216,3 +216,26 @@ These are the places where an LLM extractor should show its value. They become h
   The author approved it.
 - Checks: `practice_ids()` refuses any case that is in the gold set, in the overlap, or outside dev sites, and a unit test checks this.
 - After training, the author re-reviews their own first two gold cases without AI input.
+
+## 2026-11-24: super-agent v0 with LangGraph
+
+**D28. Super-agent v0 as a LangGraph state graph over saved contract outputs.**
+- Why now: the Cambridge person specification lists "familiarity with agentic frameworks" as essential, and the author
+  had not used one. The author asked for a small, real LangGraph component rather than a claim.
+- Claude Code proposed and implemented it; the author approved the design before coding:
+  - nodes: FIGO rules (`oac.staging`), registry check, uncertainty triage, clinician review, case card;
+  - a conditional edge sends a case to review only when there is a conflict or a flag;
+  - review is a LangGraph `interrupt()` with an in-memory checkpointer, resumed with `Command(resume=...)`;
+  - no LLM calls in the graph: the model work is done by the pinned report agent, so the graph is deterministic and free to run.
+- Choices and why:
+  - **Dev sites only.** The CLI refuses test sites until the protocol is frozen. Calibration sites are not used either, so
+    no calibration-site accuracy is seen before calibration is fitted (protocol disclosure, §9 of the draft).
+  - **Raw confidence for now.** No calibrator has been fitted; the card labels the confidence as raw. Threshold 0.6
+    (fewer than 4 of 5 samples agree) is a development choice, not tuned.
+  - **FHIR bundle without text.** Evidence is carried as offsets and the report sha256, so the system-facing output never
+    contains report text. The HTML card shows quotes and is written only to git-ignored `runs/`.
+  - **Stage IV in the registry is not a conflict.** The report can only set a lower bound, so a higher registry stage is consistent.
+- Checked: 8 unit tests on synthetic outputs (clean case, 2-tier grade, stage IV, interrupt and resume, defer, raw-confidence
+  flag, invalid review, FHIR without text); the dev run's 8 laterality conflicts match the D25 count (79 answered, 71 agree).
+- Version: langgraph 1.2.24 (optional extra `agent`; CI installs it).
+

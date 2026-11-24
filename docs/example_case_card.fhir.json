@@ -1,0 +1,557 @@
+{
+ "resourceType": "Bundle",
+ "type": "collection",
+ "entry": [
+  {
+   "resource": {
+    "resourceType": "DiagnosticReport",
+    "id": "SYNTHETIC-0001-agent-findings",
+    "status": "preliminary",
+    "code": {
+     "text": "Ovarian cancer pathology report findings (agent-extracted, rule-staged)"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "result": [
+     {
+      "reference": "Observation/SYNTHETIC-0001-primary_site"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-histotype"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-grade"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-laterality"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-ovarian_surface_involvement"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-tube_involvement"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-uterus_involvement"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-omentum_involvement"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-omentum_largest_deposit_cm"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-lymph_nodes_positive"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-lymph_nodes_examined"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-lymphovascular_invasion"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-peritoneal_cytology"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-residual_disease"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-figo1988-lower-bound"
+     }
+    ],
+    "conclusion": "FIGO 1988 >= IIIB; card status reviewed"
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-primary_site",
+    "status": "preliminary",
+    "code": {
+     "text": "primary_site"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 125
+       }
+      }
+     }
+    ],
+    "valueString": "ovary"
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-histotype",
+    "status": "preliminary",
+    "code": {
+     "text": "histotype"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 127
+       }
+      }
+     }
+    ],
+    "valueString": "high_grade_serous"
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-grade",
+    "status": "preliminary",
+    "code": {
+     "text": "grade"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 131
+       }
+      }
+     }
+    ],
+    "valueString": "G3"
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-laterality",
+    "status": "preliminary",
+    "code": {
+     "text": "laterality"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 0.8
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 133
+       }
+      }
+     }
+    ],
+    "valueString": "left"
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-ovarian_surface_involvement",
+    "status": "preliminary",
+    "code": {
+     "text": "ovarian_surface_involvement"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     }
+    ],
+    "dataAbsentReason": {
+     "text": "not stated in report"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-tube_involvement",
+    "status": "preliminary",
+    "code": {
+     "text": "tube_involvement"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "dataAbsentReason": {
+     "text": "agent abstained: evidence_not_verified"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-uterus_involvement",
+    "status": "preliminary",
+    "code": {
+     "text": "uterus_involvement"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     }
+    ],
+    "dataAbsentReason": {
+     "text": "not stated in report"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-omentum_involvement",
+    "status": "preliminary",
+    "code": {
+     "text": "omentum_involvement"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 129
+       }
+      }
+     }
+    ],
+    "valueBoolean": true
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-omentum_largest_deposit_cm",
+    "status": "preliminary",
+    "code": {
+     "text": "omentum_largest_deposit_cm"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 0.4
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 122
+       }
+      }
+     }
+    ],
+    "valueQuantity": {
+     "value": 1.5,
+     "unit": "cm",
+     "system": "http://unitsofmeasure.org",
+     "code": "cm"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-lymph_nodes_positive",
+    "status": "preliminary",
+    "code": {
+     "text": "lymph_nodes_positive"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 126
+       }
+      }
+     }
+    ],
+    "valueInteger": 0
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-lymph_nodes_examined",
+    "status": "preliminary",
+    "code": {
+     "text": "lymph_nodes_examined"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     },
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
+      "valueRange": {
+       "low": {
+        "value": 100
+       },
+       "high": {
+        "value": 104
+       }
+      }
+     }
+    ],
+    "valueInteger": 12
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-lymphovascular_invasion",
+    "status": "preliminary",
+    "code": {
+     "text": "lymphovascular_invasion"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     }
+    ],
+    "dataAbsentReason": {
+     "text": "not stated in report"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-peritoneal_cytology",
+    "status": "preliminary",
+    "code": {
+     "text": "peritoneal_cytology"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     }
+    ],
+    "dataAbsentReason": {
+     "text": "not stated in report"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-residual_disease",
+    "status": "preliminary",
+    "code": {
+     "text": "residual_disease"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "extension": [
+     {
+      "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/confidence-raw",
+      "valueDecimal": 1.0
+     }
+    ],
+    "dataAbsentReason": {
+     "text": "not stated in report"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Observation",
+    "id": "SYNTHETIC-0001-figo1988-lower-bound",
+    "status": "preliminary",
+    "code": {
+     "text": "FIGO 1988 stage, lower bound from report findings"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    },
+    "valueString": ">= IIIB",
+    "derivedFrom": [
+     {
+      "reference": "Observation/SYNTHETIC-0001-omentum_involvement"
+     },
+     {
+      "reference": "Observation/SYNTHETIC-0001-omentum_largest_deposit_cm"
+     }
+    ]
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Flag",
+    "id": "SYNTHETIC-0001-issue-0",
+    "status": "active",
+    "code": {
+     "text": "registry_conflict: laterality: report: left; registry: bilateral"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Flag",
+    "id": "SYNTHETIC-0001-issue-1",
+    "status": "active",
+    "code": {
+     "text": "stage_conflict: figo_stage: report findings imply at least IIIB (from omentum_involvement, omentum_largest_deposit_cm); registry: IIIA"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Flag",
+    "id": "SYNTHETIC-0001-issue-2",
+    "status": "active",
+    "code": {
+     "text": "abstained: tube_involvement: agent abstained (evidence_not_verified); stage lower bound may be too low"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Flag",
+    "id": "SYNTHETIC-0001-issue-3",
+    "status": "active",
+    "code": {
+     "text": "low_confidence: omentum_largest_deposit_cm: raw confidence 0.40"
+    },
+    "subject": {
+     "reference": "Patient/SYNTHETIC-0001"
+    }
+   }
+  },
+  {
+   "resource": {
+    "resourceType": "Provenance",
+    "id": "SYNTHETIC-0001-provenance",
+    "target": [
+     {
+      "reference": "DiagnosticReport/SYNTHETIC-0001-agent-findings"
+     }
+    ],
+    "recorded": "2026-11-24T00:00:00+00:00",
+    "agent": [
+     {
+      "who": {
+       "display": "llm_extractor.hybrid@0.3.0 (SYNTHETIC EXAMPLE)"
+      }
+     },
+     {
+      "who": {
+       "display": "superagent graph@0.1.0"
+      }
+     },
+     {
+      "who": {
+       "display": "clinician review: accept_report"
+      }
+     }
+    ],
+    "entity": [
+     {
+      "role": "source",
+      "what": {
+       "display": "report sha256 0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

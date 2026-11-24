@@ -11,3 +11,4 @@ labels/raw/
 runs/*
 !runs/.gitkeep
 dist/
+.DS_Store
