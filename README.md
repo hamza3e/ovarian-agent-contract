@@ -1,22 +1,23 @@
 # ovarian-agent-contract
 
-**Auditable agents for ovarian cancer evidence: an agent output contract, a pathology-report agent, a LangGraph
-super-agent with clinician review, and a pre-registered evaluation across 20 TCGA centres.**
+A pathology-report agent for ovarian cancer whose findings carry evidence that code has checked, and a LangGraph
+super-agent that sends a case to a clinician when the findings and the registry disagree. It runs on 371 public TCGA-OV
+pathology reports from 20 centres, with an evaluation protocol written before the test centres are opened.
 
 > **Status: work in progress (Nov 2026).** The contract, the report agent, the super-agent and the evaluation code
 > work and are tested. **There are no evaluation results yet.** The test centres stay locked until the protocol
 > ([eval/PROTOCOL.draft.md](eval/PROTOCOL.draft.md)) is frozen. Numbers below are development observations on the
 > three development centres only.
 
-## Why
-A multi-agent clinical system (imaging, pathology, genomics, clinical text) is only as trustworthy as the messages
-its agents pass to each other and to clinicians. Each agent should:
-- answer in the same auditable form;
-- separate "the source does not say" from "I am not sure";
-- show the evidence behind every finding, checked by code;
-- report confidence that still holds at **other hospitals**.
+## Why I built this
+Multi-agent clinical systems pass findings from one agent to the next and finally to a clinician. I wanted to find out
+what those messages need to contain before anyone can trust them at another hospital. Here each finding has a status
+that separates "the report does not say" from "the agent is not sure", evidence quotes that code checks against the
+report, and a confidence score to be calibrated on centres the prompt was not developed on. On the development
+centres, 41 of 44 abstentions came from evidence the code could not find in the report.
 
-This repo builds and tests that layer on a real task: 371 pathology reports of serous ovarian cancer from 20 TCGA centres.
+The decision log ([DECISIONS.md](DECISIONS.md)) records each step: what Claude Code proposed, what I checked, and
+what I changed or dropped, including the gold-label pilot I stopped (D29).
 
 ## How it works
 ```
