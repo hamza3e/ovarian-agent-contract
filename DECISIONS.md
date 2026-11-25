@@ -281,3 +281,10 @@ These are the places where an LLM extractor should show its value. They become h
 - Claude Code rendered the synthetic card with headless Chrome to `docs/example_case_card.png` and embedded it under the super-agent heading.
 - Checked on the screenshot: every evidence offset was the placeholder 100 and the prompt hash was empty. Both looked like bugs.
 - Fix in `oac.superagent.demo`: the invented quotes now sit in an invented report string, so their offsets are real, and the example carries a synthetic prompt hash and an input hash of that string. Still no TCGA text.
+
+**D32. Study guide published (26 Nov).**
+- The author asked Claude Code for a single study guide on 19 Nov because the first background notes were hard to follow, worked through it step by step, and asked for it to be published with the repo.
+- Translated from Turkish and updated to the current state: no gold set (D29), L4 runs, super-agent built, calibrator as in protocol §5.
+- Removed before publishing: notes on the hiring panel and interview questions, personal to-do items and Colab steps, labelling file names.
+- Checked against the data and sources before publishing: registry grades (G3 313, G2 42, G1 6), 16 stage IIC patients, 63 reports mentioning "residual", Imperial College among the test centres, and the O-RADS numbers (arXiv 2608.23061: 99.2% hybrid, 65.6–95.9% end to end, 390 masses).
+- Served with GitHub Pages from `docs/`, because GitHub shows HTML files as source.

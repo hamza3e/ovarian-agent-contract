@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Guide: ovarian-agent-contract</title>
+<meta name="description" content="The clinical and ML background I worked through while building ovarian-agent-contract.">
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --ink:#1d1d1b; --muted:#5f5e58; --line:#e3e1da;
+  --accent:#1f5fa8; --accent-soft:#e6eef8; --good:#1d7a4a; --good-soft:#e3f3ea;
+  --warn:#9a5b00; --warn-soft:#fbf0dc; --bad:#b03a2e; --bad-soft:#f9e4e1;
+  --f1:#d9e8fb; --f2:#fde2cf; --f3:#dff3e3; --f4:#efe0f7; --f5:#fbf3c9; --f6:#f8dbe5; --f7:#d8f0f2;
+  --code:#f0eee8; --shadow:0 1px 2px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16171a; --panel:#1f2024; --ink:#ecebe6; --muted:#a7a59e; --line:#34353a;
+    --accent:#7fb0ea; --accent-soft:#1d2c40; --good:#6fcf98; --good-soft:#18301f;
+    --warn:#e6b45c; --warn-soft:#33281a; --bad:#f08a7e; --bad-soft:#3a1f1c;
+    --f1:#23364f; --f2:#4a2f1e; --f3:#1f3a26; --f4:#382646; --f5:#3d3818; --f6:#45222e; --f7:#1c3a3d;
+    --code:#2a2b30; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16171a; --panel:#1f2024; --ink:#ecebe6; --muted:#a7a59e; --line:#34353a;
+  --accent:#7fb0ea; --accent-soft:#1d2c40; --good:#6fcf98; --good-soft:#18301f;
+  --warn:#e6b45c; --warn-soft:#33281a; --bad:#f08a7e; --bad-soft:#3a1f1c;
+  --f1:#23364f; --f2:#4a2f1e; --f3:#1f3a26; --f4:#382646; --f5:#3d3818; --f6:#45222e; --f7:#1c3a3d;
+  --code:#2a2b30; --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+a{color:var(--accent)}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--code);padding:.1em .35em;border-radius:4px}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:100vh}
+nav{position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid var(--line);padding:20px 14px;background:var(--panel)}
+nav h1{font-size:15px;margin:0 0 4px}
+nav .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+nav ol{list-style:none;margin:0;padding:0;counter-reset:s}
+nav li{margin:1px 0}
+nav li a{display:flex;gap:8px;align-items:center;text-decoration:none;color:var(--ink);font-size:13.5px;padding:5px 8px;border-radius:6px}
+nav li a:hover{background:var(--accent-soft)}
+nav li a .tick{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);flex:none;display:grid;place-items:center;font-size:10px;color:transparent}
+nav li a.done .tick{background:var(--good);border-color:var(--good);color:#fff}
+nav .group{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 8px 4px}
+.progress{height:6px;background:var(--line);border-radius:3px;margin:8px 0 6px;overflow:hidden}
+.progress>div{height:100%;background:var(--good);width:0;transition:width .3s}
+.ptext{font-size:12px;color:var(--muted)}
+.themebtn{margin-top:14px;font-size:12px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 8px;cursor:pointer}
+main{padding:28px 40px 120px;max-width:940px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px 28px;margin:0 0 22px;box-shadow:var(--shadow)}
+section h2{margin:0 0 4px;font-size:22px}
+section .lead{color:var(--muted);margin:0 0 16px}
+h3{font-size:17px;margin:22px 0 6px}
+.done-row{display:flex;justify-content:flex-end;margin-top:18px}
+.done-btn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+.done-btn.on{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.box{border-radius:10px;padding:12px 16px;margin:14px 0;border:1px solid var(--line)}
+.box.key{background:var(--accent-soft);border-color:transparent}
+.box.warn{background:var(--warn-soft);border-color:transparent}
+.box.good{background:var(--good-soft);border-color:transparent}
+.box b.t{display:block;margin-bottom:2px}
+.analogy{border-left:3px solid var(--accent);padding:4px 0 4px 14px;margin:12px 0;color:var(--ink)}
+.analogy::before{content:"Everyday analogy: ";font-weight:600;color:var(--accent)}
+.inproj{border-left:3px solid var(--good);padding:4px 0 4px 14px;margin:12px 0}
+.inproj::before{content:"In this project: ";font-weight:600;color:var(--good)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+.tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:999px;background:var(--code);color:var(--muted);margin-left:4px;white-space:nowrap}
+.tag.done{background:var(--good-soft);color:var(--good)}
+.tag.next{background:var(--warn-soft);color:var(--warn)}
+.tag.plan{background:var(--code);color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg)}
+.card h4{margin:0 0 4px;font-size:15px}
+.card p{margin:0;font-size:14.5px}
+/* report */
+.report{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.report .sp{border-radius:4px;padding:1px 2px;cursor:pointer;transition:outline .15s}
+.report .sp.dim{opacity:.35}
+.report .sp.hl{outline:2px solid var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer;background:var(--panel);color:var(--ink)}
+.chip.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.fieldout{font-size:14px;min-height:46px;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--accent-soft)}
+/* calculator */
+.calc{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+.calc fieldset{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;padding:8px 12px 10px}
+.calc legend{font-size:13px;font-weight:600;padding:0 4px}
+.calc label{display:block;font-size:14px;margin:3px 0;cursor:pointer}
+.calc .ff{font-size:11.5px;color:var(--muted);margin-left:2px}
+.result{position:sticky;top:16px}
+.stage{display:flex;gap:10px}
+.stage .s{flex:1;border-radius:10px;padding:12px;text-align:center;background:var(--bg);border:1px solid var(--line)}
+.stage .s .v{font-size:30px;font-weight:700;letter-spacing:.02em}
+.stage .s .l{font-size:12px;color:var(--muted)}
+.stage .s.diff{border-color:var(--warn);background:var(--warn-soft)}
+.agentview{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--good-soft);font-size:14px}
+.why{font-size:13.5px;color:var(--muted);margin-top:8px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.presets button{font-size:12.5px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:4px 8px;cursor:pointer}
+/* svg */
+svg text{fill:var(--ink);font-family:inherit}
+svg .muted{fill:var(--muted)}
+.fig{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0}
+.figcap{font-size:13px;color:var(--muted);margin-top:4px}
+.toy{font-size:13px;color:var(--warn);font-weight:600}
+/* risk coverage */
+.rc{display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:center}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{width:46px;height:46px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:600;border:1.5px solid transparent}
+.dot.ok{background:var(--good-soft);color:var(--good)}
+.dot.err{background:var(--bad-soft);color:var(--bad)}
+.dot.abs{background:var(--code);color:var(--muted);border-style:dashed;border-color:var(--line)}
+.meter .n{font-size:26px;font-weight:700}
+.meter .k{font-size:12px;color:var(--muted);margin-bottom:8px}
+input[type=range]{width:100%}
+/* quiz */
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0;background:var(--bg)}
+details summary{cursor:pointer;font-weight:600}
+details .ans{margin-top:8px}
+textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);padding:8px 10px;font:14px/1.5 inherit;resize:vertical}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:14px}
+.btn.ghost{background:none;color:var(--accent)}
+.small{font-size:13px;color:var(--muted)}
+.todo li{margin:4px 0}
+.split{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.split .card .n{font-size:24px;font-weight:700}
+@media (max-width:900px){.layout{grid-template-columns:1fr}nav{position:static;height:auto}.calc,.grid2,.rc,.split{grid-template-columns:1fr}main{padding:16px}}
+@media print{nav{display:none}.layout{display:block}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <h1>Study guide</h1>
+  <div class="sub">ovarian-agent-contract · the background I worked through while building it</div>
+  <div class="progress"><div id="pbar"></div></div>
+  <div class="ptext" id="ptext">0 / 0 sections</div>
+  <ol id="toc"></ol>
+  <button class="themebtn" id="themebtn" type="button">Theme: auto</button>
+</nav>
+<main>
+
+<section id="s-start" data-group="Start">
+  <h2>How I used this guide</h2>
+  <p class="lead">I asked Claude Code to write this guide on 19 November 2026, while the repository was being built, because the first background notes were hard for me to follow. I then worked through it step by step, and it is how I came to understand the project.</p>
+  <div class="grid2">
+    <div class="card"><h4>What I did with it</h4><p>I read sections 2 to 6 (reports, grade, FIGO staging, residual disease) before labelling anything. I then labelled 5 development practice reports and 2 test-centre reports, blind to model outputs, at 7 to 11 minutes of active time per practice report (<a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/DECISIONS.md">D26, D27</a>). A field-by-field review of my practice labels against the annotation guide (by Claude Code, development reports only) disagreed on 16 of 70 fields, mostly lymphovascular invasion, uterus involvement, omental deposit size and histotype. My conclusion was that a gold set for these fields needs a pathologist, so I dropped it for this version (D29).</p></div>
+    <div class="card"><h4>How to read it</h4><p>Sections 1 to 6 are the medical background (about 45 minutes), 7 to 10 the ML and LLM ideas (about 40 minutes), 11 the system itself, 12 a short self-test. Each idea comes as a definition, an <span style="color:var(--accent);font-weight:600">everyday analogy</span>, and what it means <span style="color:var(--good);font-weight:600">in this project</span>. "Mark as read" is saved only in your browser.</p></div>
+  </div>
+  <div class="box warn"><b class="t">Status of this page</b>Written on 19 November 2026 and updated on 26 November to match the repository: there is no human gold set (D29), the recorded runs used an NVIDIA L4, and the super-agent is built. This is learning material and simplifies some clinical details. It is not clinical guidance.</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-big" data-group="Start">
+  <h2>1. The big picture</h2>
+  <p class="lead">Multi-agent AI systems for cancer care, such as the EU IMPACT-OC project for ovarian cancer, combine separate agents for imaging, pathology, genomics and clinical text.</p>
+  <h3>In one sentence</h3>
+  <p>Specialist "agents" for imaging, pathology, genetics and clinical text, and a "super-agent" that combines their answers. The aim is recommendations for the tumour board (the clinicians' case meeting) that state their uncertainty openly. Pilots of such systems run in "shadow mode": in the background, without affecting treatment.</p>
+  <div class="analogy">In a hospital the radiologist, the pathologist and the geneticist each write a report, and the oncologist combines them at the tumour board. The agents help the specialists; the super-agent helps the board.</div>
+  <h3>Where the problem is</h3>
+  <p>To combine agents, each one has to speak the same language: the answer, the evidence, how sure it is, and the ability to say "I don't know". This repository tries that layer on one agent, the pathology report agent, with public data.</p>
+  <table>
+    <tr><th>Part</th><th>What it does</th><th>State</th></tr>
+    <tr><td>Agent contract</td><td>Every agent answers in the same form: value, evidence, confidence, abstention and its reason, provenance</td><td><span class="tag done">done</span></td></tr>
+    <tr><td>Pathology report agent</td><td>Extracts 14 findings from a report, quotes its evidence, abstains when unsure</td><td><span class="tag done">done</span> <span class="tag done">dev and calibration centres run</span></td></tr>
+    <tr><td>Calibrator</td><td>Maps raw confidence to the chance of agreeing with the registry</td><td><span class="tag next">code done, not fitted</span></td></tr>
+    <tr><td>Evaluation protocol</td><td>Calibration, abstention and per-centre results; frozen before the test run</td><td><span class="tag next">draft v0.2</span></td></tr>
+    <tr><td>Super-agent v0 (LangGraph)</td><td>Combines the report with the registry, flags conflicts, pauses for clinician review, writes a case card</td><td><span class="tag done">done on saved outputs</span></td></tr>
+  </table>
+  <div class="inproj">Data: 371 public TCGA ovarian cancer pathology reports from 20 centres, and the TCGA clinical registry table. De-identified; CC BY 4.0.</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-ovca" data-group="Medical background">
+  <h2>2. Ovarian cancer: the minimum</h2>
+  <p class="lead">Enough to talk with clinicians about the data: not expert knowledge, but the right words.</p>
+  <h3>HGSC: the main disease</h3>
+  <ul>
+    <li>Most ovarian cancers are epithelial. The most common and most lethal subtype is <b>high-grade serous carcinoma (HGSC)</b>.</li>
+    <li>Most patients are diagnosed at an advanced stage (III or IV), because early symptoms are few.</li>
+    <li>Many HGSCs are thought to start in the <b>fallopian tube</b> (precursor lesion: <b>STIC</b>, serous tubal intraepithelial carcinoma). Reports therefore say "tubo-ovarian", and the site of origin can be unclear.</li>
+    <li>Genetics: in the TCGA study (Nature 2011) almost all HGSCs had a <b>TP53</b> mutation (about 96%), and about half had homologous recombination deficiency (<b>HRD</b>, including BRCA1/2).</li>
+  </ul>
+  <h3>Treatment, roughly</h3>
+  <ul>
+    <li><b>Surgery (debulking / cytoreduction):</b> remove all visible tumour, aiming to leave no macroscopic disease.</li>
+    <li><b>Platinum-based chemotherapy:</b> the standard drug treatment.</li>
+    <li><b>PARP inhibitor:</b> maintenance treatment when there is a BRCA mutation or HRD.</li>
+    <li><b>The main decision:</b> surgery first (<b>PDS</b>, primary debulking surgery), or chemotherapy first and surgery later (<b>NACT + IDS</b>, neoadjuvant chemotherapy and interval debulking surgery)?</li>
+    <li><b>CA-125:</b> a blood tumour marker used in follow-up. <b>CRS</b> (chemotherapy response score): the pathological grade (1 to 3) of the omentum's response to chemotherapy after NACT.</li>
+  </ul>
+  <div class="analogy">Before putting out a fire you either go straight in and put it all out (PDS), or shrink it from outside first and then go in (NACT + IDS). The right choice depends on the guess "can I put all of it out once I am inside?"</div>
+  <div class="inproj">The reports come from TCGA, so most are primary surgery specimens. The agent does not make this decision; it extracts the findings that would feed into it, reliably.</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-report" data-group="Medical background">
+  <h2>3. How to read a pathology report</h2>
+  <p class="lead">The report below is <b>synthetic</b> (written for the tests, not a real patient). Click a field to see which part of the report supports it.</p>
+  <ul>
+    <li>A report is made of <b>specimen parts</b>: A right ovary, B left ovary, C omentum, D uterus, E lymph nodes...</li>
+    <li>Each part has a gross description (size, appearance) and a microscopic final diagnosis. Some reports end with a structured synoptic report.</li>
+    <li><b>Frozen section:</b> a quick diagnosis during surgery. <b>Washings / cytology:</b> fluid from the abdominal cavity, often reported separately.</li>
+    <li>The real TCGA reports were OCR'd from scanned paper, so typos such as "lort ovary" or "Quentum" are normal.</li>
+  </ul>
+  <div class="legend" id="legend"></div>
+  <div class="report" id="report"></div>
+  <div class="fieldout" id="fieldout">Pick a field.</div>
+  <div class="box warn"><b class="t">Why is this hard?</b>Laterality is spread over two parts: A "Ovary, right" and B "Ovary, left" together mean "bilateral". A regex that reads sentence by sentence cannot join them, and on the development centres the rules baseline was weakest exactly here. This is where the LLM is expected to help (D21).</div>
+  <div class="inproj">This report has no "residual disease" information, so the correct answer is <code>not_stated</code>. "The report does not say" is also an answer.</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-grade" data-group="Medical background">
+  <h2>4. Histotype and grade</h2>
+  <p class="lead">The two fields that come up most often when labelling.</p>
+  <div class="grid2">
+    <div class="card"><h4>Old system: three tiers</h4><p><b>G1</b> well differentiated, <b>G2</b> moderately, <b>G3</b> poorly. TCGA-era reports and the registry use this.</p></div>
+    <div class="card"><h4>Current WHO: two separate diseases</h4><p><b>LGSC</b> (low-grade serous): KRAS/BRAF pathway, slow course. <b>HGSC</b> (high-grade serous): TP53, genomic instability, sensitive to platinum and PARP inhibitors. They are not two grades of the same disease.</p></div>
+  </div>
+  <h3>Labelling rules (from the annotation guide)</h3>
+  <ul>
+    <li>Grade is what the report says: "poorly differentiated" = G3. <b>Do not turn G2 into "high grade" automatically.</b></li>
+    <li>If several grades are given, take the highest.</li>
+    <li>If there is no three-tier grade and the report says "high grade", use <code>high_grade</code>.</li>
+    <li>Histotype: "serous carcinoma, poorly differentiated" → <code>serous_nos</code> (the grade goes to its own field). Use <code>high_grade_serous</code> only when the words "high grade serous" appear.</li>
+  </ul>
+  <div class="inproj">Registry (silver label) grades for the 371 patients: G3 313, G2 42, G1 6, missing 10. The registry is not the truth. Results are reported as agreement with it, never as accuracy (D29).</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-figo" data-group="Medical background">
+  <h2>5. FIGO staging, with a calculator</h2>
+  <p class="lead">Stage says how far the disease has spread. Staging is rule-based, so here it is <b>computed by rules</b> rather than guessed by the LLM.</p>
+  <div class="box key"><b class="t">Which version did TCGA use?</b>The registry contains <b>stage IIC</b> (16 of the 371 patients). IIC was removed in the 2014 version, and the diagnosis years are mostly 1999 to 2009. So TCGA used <b>FIGO 1988</b>. Comparing against the wrong version would have shown "errors" even for a correct system.</div>
+  <table>
+    <tr><th>Stage</th><th>Roughly</th><th>1988 vs 2014</th></tr>
+    <tr><td>I</td><td>Confined to the ovary or ovaries. IA one ovary, IB both, IC surface tumour / capsule rupture / tumour in washings</td><td>2014 splits IC into IC1 (surgical spill), IC2 (surface / rupture), IC3 (cytology)</td></tr>
+    <tr><td>II</td><td>Pelvic extension. IIA uterus / tube, IIB other pelvic tissues</td><td>1988's <b>IIC</b> (II plus surface / cytology) was removed in 2014</td></tr>
+    <tr><td>III</td><td>Peritoneum outside the pelvis (including omentum) and/or retroperitoneal lymph nodes</td><td>Nodes only: 1988 <b>IIIC</b>, 2014 <b>IIIA1</b>. Microscopic peritoneal disease: 1988 IIIA, 2014 IIIA2</td></tr>
+    <tr><td>IV</td><td>Distant metastasis: tumour in pleural fluid, liver or spleen parenchyma, organs outside the abdomen</td><td>2014 IVA (pleural) / IVB (parenchymal, extra-abdominal, including inguinal nodes)</td></tr>
+  </table>
+  <p class="small">The omentum lies above the pelvis, so omental tumour means at least stage III: deposits ≤ 2 cm give IIIB, &gt; 2 cm give IIIC.</p>
+  <h3>Calculator</h3>
+  <p class="small">Choose findings; each input shows which of our fields it comes from. This is a learning tool, not a clinical one, and some details are simplified (see the note below).</p>
+  <div class="presets" id="presets"></div>
+  <div class="calc">
+    <form id="figo" onsubmit="return false">
+      <fieldset><legend>Ovarian involvement <span class="ff">← laterality</span></legend>
+        <label><input type="radio" name="ov" value="one" checked> One ovary</label>
+        <label><input type="radio" name="ov" value="both"> Both ovaries (bilateral)</label>
+      </fieldset>
+      <fieldset><legend>Ovarian surface and cytology</legend>
+        <label><input type="checkbox" name="surface"> Surface tumour or capsule rupture <span class="ff">← ovarian_surface_involvement</span></label>
+        <label><input type="checkbox" name="wash"> Tumour in washings / ascites <span class="ff">← peritoneal_cytology</span></label>
+      </fieldset>
+      <fieldset><legend>Pelvic extension</legend>
+        <label><input type="radio" name="pelvic" value="none" checked> None</label>
+        <label><input type="radio" name="pelvic" value="ut"> Uterus or tube <span class="ff">← uterus_involvement, tube_involvement</span></label>
+        <label><input type="radio" name="pelvic" value="other"> Other pelvic tissues <span class="ff">← not in the schema (v0.1)</span></label>
+      </fieldset>
+      <fieldset><legend>Peritoneum outside the pelvis (including omentum)</legend>
+        <label><input type="radio" name="perit" value="none" checked> None</label>
+        <label><input type="radio" name="perit" value="micro"> Microscopic only <span class="ff">← omentum_involvement</span></label>
+        <label><input type="radio" name="perit" value="le2"> Macroscopic, ≤ 2 cm <span class="ff">← omentum_largest_deposit_cm</span></label>
+        <label><input type="radio" name="perit" value="gt2"> Macroscopic, &gt; 2 cm <span class="ff">← omentum_largest_deposit_cm</span></label>
+      </fieldset>
+      <fieldset><legend>Lymph nodes</legend>
+        <label><input type="checkbox" name="rpln"> Pelvic / para-aortic nodes positive <span class="ff">← lymph_nodes_positive</span></label>
+        <label><input type="checkbox" name="ingln"> Inguinal nodes positive <span class="ff">← not in the schema</span></label>
+      </fieldset>
+      <fieldset><legend>Distant metastasis <span class="ff">← not visible to the report agent: imaging / clinical agent</span></legend>
+        <label><input type="checkbox" name="pleural"> Tumour in pleural fluid</label>
+        <label><input type="checkbox" name="parench"> Liver / spleen parenchymal metastasis</label>
+        <label><input type="checkbox" name="extra"> Metastasis outside the abdomen</label>
+      </fieldset>
+    </form>
+    <div class="result">
+      <div class="stage">
+        <div class="s" id="s88"><div class="l">FIGO 1988 (TCGA)</div><div class="v" id="v88">IA</div></div>
+        <div class="s" id="s14"><div class="l">FIGO 2014</div><div class="v" id="v14">IA</div></div>
+      </div>
+      <div class="agentview" id="agentview"></div>
+      <div class="why" id="why"></div>
+    </div>
+  </div>
+  <p class="small">Simplifications: in 2014, stage I means "confined to the ovaries or tubes", so tube involvement is not always stage II; IC1 (surgical spill) and IIIA1(i)/(ii) (nodal metastasis ≤ / &gt; 10 mm) are not shown. Liver capsule involvement counts as III, parenchymal as IV.</p>
+  <div class="inproj">The report agent cannot see stage IV (pleura and liver parenchyma are not in an abdominal pathology report), so it gives a <b>lower bound</b> such as "≥ IIIC", and imaging or a clinical agent would complete it. This is a concrete reason for a multi-agent design. A study on 390 ovarian masses (O-RADS, arXiv 2608.23061) found that "LLM extracts, rules decide" reached 99.2% accuracy, while end-to-end LLM strategies ranged from 65.6% to 95.9%. This repository tests the same idea for FIGO staging (D6).</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-resid" data-group="Medical background">
+  <h2>6. Residual disease: an honesty test</h2>
+  <p class="lead">One of the strongest prognostic factors, but rarely written in a pathology report.</p>
+  <ul>
+    <li>Tumour left at the end of surgery: <b>R0</b> / no macroscopic disease, <b>≤ 1 cm</b> (optimal), <b>&gt; 1 cm</b> (suboptimal).</li>
+    <li>It is a <b>surgical</b> finding: the surgeon sees what was left in the abdomen; the pathologist only sees the tissue that was removed. The pathology report usually does not say.</li>
+    <li>The registry has it for most patients, but the reports rarely mention it: the word "residual" appears in 63 of the 371 reports (a rough keyword count).</li>
+  </ul>
+  <div class="analogy">If a match report only covers the first half, the right answer to "what was the final score?" is "not in the report", not a guess.</div>
+  <div class="inproj">A good agent says <code>not_stated</code> here instead of inventing a value. If a phrase such as "optimal debulking" appears and it cannot back its answer with a quote, it abstains. One synthetic test checks exactly this: an answer whose quote is not in the report makes the hybrid agent abstain, while the end-to-end agent answers with a warning.</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-calib" data-group="ML concepts">
+  <h2>7. Calibration: is "90% sure" really 90%?</h2>
+  <p class="lead">A model is <b>calibrated</b> if it is right about 90 times out of the 100 answers it gives with 90% confidence.</p>
+  <div class="analogy">If a forecast says "70% chance of rain" and it rains on about 70% of those days, the forecaster is calibrated. One that says "95%" every day and is wrong half the time is overconfident.</div>
+  <div class="fig">
+    <svg viewBox="0 0 520 300" width="100%" role="img" aria-label="Example reliability diagram">
+      <line x1="60" y1="250" x2="480" y2="250" stroke="var(--line)"/><line x1="60" y1="250" x2="60" y2="20" stroke="var(--line)"/>
+      <line x1="60" y1="250" x2="480" y2="20" stroke="var(--muted)" stroke-dasharray="5 5"/>
+      <text x="400" y="40" font-size="12" class="muted">perfect calibration</text>
+      <g id="relbars"></g>
+      <text x="270" y="285" font-size="13" text-anchor="middle">Confidence the model states</text>
+      <text x="18" y="135" font-size="13" text-anchor="middle" transform="rotate(-90 18 135)">Observed accuracy</text>
+      <text x="60" y="267" font-size="11" text-anchor="middle" class="muted">0</text><text x="480" y="267" font-size="11" text-anchor="middle" class="muted">1</text>
+    </svg>
+    <div class="figcap"><span class="toy">Toy data, not a result.</span> Bars below the diagonal mean the model is overconfident: when it says "90%" it is right less often. This is a <b>reliability diagram</b>; the average gap between the bars and the line is the <b>ECE</b> (expected calibration error).</div>
+  </div>
+  <h3>Measures</h3>
+  <ul>
+    <li><b>ECE:</b> the weighted average gap between stated confidence and observed accuracy, over confidence bins. Smaller is better.</li>
+    <li><b>Brier score:</b> the mean of (confidence − outcome)². It reflects both accuracy and calibration.</li>
+    <li><b>Calibrator:</b> a small function that maps raw confidence to observed accuracy. Common choices are <b>Platt scaling</b> (a logistic curve) and <b>isotonic regression</b> (a monotone step curve). Here it is an L2 logistic regression on several confidence features (protocol §5).</li>
+  </ul>
+  <div class="inproj">The calibrator is fitted <b>only on the calibration centres</b> (Pittsburgh, MD Anderson, IGC), against registry agreement for grade, laterality and LVI, and measured on the 14 unseen test centres. This is <b>calibration transfer</b>: does confidence tuned at one hospital still hold at another?</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-abst" data-group="ML concepts">
+  <h2>8. Abstention and risk–coverage</h2>
+  <p class="lead">An agent that says "I don't know" when unsure answers fewer questions but makes fewer mistakes on the ones it answers. That trade-off has to be measured.</p>
+  <div class="analogy">A test where wrong answers cost points: leave the questions you are unsure of blank, and you answer fewer but score higher.</div>
+  <p>Move the slider to change the threshold. Answers given with confidence below it become <b>abstentions</b> (grey).</p>
+  <div class="rc">
+    <div><div class="dots" id="dots"></div></div>
+    <div class="meter">
+      <div class="k">Threshold</div><input type="range" id="thr" min="0.40" max="0.99" step="0.01" value="0.40"><div class="n" id="thrv">0.40</div>
+      <div class="k">Coverage (share answered)</div><div class="n" id="cov"></div>
+      <div class="k">Error among answered (risk)</div><div class="n" id="risk"></div>
+    </div>
+  </div>
+  <p class="figcap"><span class="toy">Toy data: 20 invented predictions, not a result.</span> The number in each box is the model's confidence; green is right, red is wrong.</p>
+  <ul>
+    <li><b>Risk–coverage curve:</b> the pairs of coverage and risk as the threshold moves. The area under it is the <b>AURC</b>; smaller is better.</li>
+    <li><b>Selective prediction:</b> single numbers such as "accuracy at 90% coverage".</li>
+  </ul>
+  <div class="inproj">The contract keeps <code>not_stated</code> and <code>abstained</code> apart. "The report does not say" is a correct answer; "I am not sure" is a refusal. Merging them makes an agent that refuses often look good and hides missing information. For a super-agent the difference matters: <code>not_stated</code> means "look at another source", <code>abstained</code> means "ask a person".</div>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-site" data-group="ML concepts">
+  <h2>9. Site shift and the splits</h2>
+  <p class="lead">Every hospital has its own report template, terms, scan quality and patients. A model that works at one centre can fail at another (<b>site shift</b>).</p>
+  <div class="analogy">A student tested only on their own teacher's questions looks good, and may not do as well on another school's exam.</div>
+  <div class="split">
+    <div class="card"><h4>Development</h4><div class="n">109</div><p>Washington Univ., Christiana, MSK. The only reports looked at while writing prompts and rules.</p></div>
+    <div class="card"><h4>Calibration</h4><div class="n">75</div><p>Pittsburgh, MD Anderson, IGC. Only the calibrator and thresholds are fitted here.</p></div>
+    <div class="card"><h4>Test</h4><div class="n">187</div><p>14 unseen centres (Imperial College among them). Locked in code until the protocol is frozen.</p></div>
+  </div>
+  <ul>
+    <li><b>Why not a random split?</b> A random split puts reports from the same centre in both training and test. The model learns the template, the result looks better than it is, and differences between centres disappear.</li>
+    <li><b>Test lock:</b> <code>oac.splits.select</code> does not return test reports until <code>eval/PROTOCOL.md</code> is frozen with its hash recorded and <code>OAC_UNLOCK_TEST=1</code> is set. The git history shows the order: protocol first, test run second.</li>
+    <li><b>Conformal prediction:</b> the model returns a set ("G2 or G3") instead of one answer and aims to guarantee how often the set contains the right answer. The guarantee assumes the data are exchangeable, which can break when the centre changes. The contract has a field for prediction sets; they are not part of the current protocol.</li>
+  </ul>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-llm" data-group="ML concepts">
+  <h2>10. The LLM side: schema, evidence, consistency</h2>
+  <p class="lead">The LLM has a narrow job: extract findings and quote evidence. Code decides everything else.</p>
+  <h3>Constrained decoding</h3>
+  <p>vLLM turns the JSON schema into a grammar and blocks, at every step, the tokens that would break it. The model cannot produce invalid JSON or a value that is not allowed, such as "G4".</p>
+  <div class="analogy">A drop-down menu on a form: you can only pick listed options, but you can still pick the wrong one.</div>
+  <p><b>It guarantees the format, not the content.</b> Content is checked by evidence verification and, for some fields, by agreement with the registry.</p>
+  <h3>Evidence verification</h3>
+  <p>For every answer the model quotes the report. Code looks for the quote in the report: first exactly, then ignoring case and spacing, then by fuzzy matching with a threshold of 90/100. If it is not found, the hybrid agent's answer becomes <code>abstained: evidence_not_verified</code>.</p>
+  <div class="box warn"><b class="t">Known limit</b>Verification proves the quote <b>exists</b>, not that it <b>supports</b> the answer. The model could quote "Ovary, left" and answer "bilateral". Registry agreement catches some of this for grade, laterality and LVI; a check between the value and its quote is a next step.</div>
+  <h3>Confidence signals</h3>
+  <table>
+    <tr><th>Signal</th><th>How it is computed</th><th>What it tells you</th></tr>
+    <tr><td>Self-consistency</td><td>1 greedy and 5 sampled outputs; how many samples agree with the greedy answer</td><td>5/5 stable, 2/5 unstable. Catches ambiguous reports.</td></tr>
+    <tr><td>Token probability</td><td>The probability the model gives to the tokens of "G3": exp(sum of log-probabilities)</td><td>Local confidence; usually too high, so not used alone</td></tr>
+    <tr><td>Evidence match score</td><td>Fuzzy match score of the quote against the report (0–100)</td><td>Invented quote, or just an OCR difference?</td></tr>
+  </table>
+  <p>The model is <b>not asked</b> how confident it is: verbal confidence is known to be poorly calibrated (Kadavath et al. 2022). Signals from its behaviour go to the calibrator instead.</p>
+  <h3>Hybrid and end-to-end</h3>
+  <div class="grid2">
+    <div class="card"><h4>End-to-end (baseline)</h4><p>Same model; its answers are taken as they are and it assigns the stage itself. Unverified evidence only adds a warning.</p></div>
+    <div class="card"><h4>Hybrid (the proposed system)</h4><p>The model extracts; code verifies the evidence, calibrates confidence and abstains when unsure; FIGO rules compute the stage.</p></div>
+  </div>
+  <h3>Why a local open-weight model</h3>
+  <ul>
+    <li>Hospital data does not leave the site, which matches federated, "data stays on site" designs.</li>
+    <li>Everything is pinned: <b>Qwen3-8B-AWQ</b>, its Hugging Face revision, the prompt hash, the code commit and the seed. The same run can be repeated.</li>
+    <li>It runs on a single Colab GPU; the recorded runs used an NVIDIA L4.</li>
+    <li>An optional Claude API backend exists to measure what keeping the data in-house costs in accuracy. It is not part of the evaluation protocol.</li>
+  </ul>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-sys" data-group="The system">
+  <h2>11. The system: parts and files</h2>
+  <p class="lead">Left to right. Green is done, orange is code without results yet.</p>
+  <div class="fig">
+    <svg viewBox="0 0 860 300" width="100%" role="img" aria-label="System flow diagram">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+      <g font-size="12.5">
+        <rect x="10" y="40" width="120" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="70" y="64" text-anchor="middle">Report text</text><text x="70" y="82" text-anchor="middle" class="muted" font-size="11">371 reports, 20 centres</text>
+        <rect x="160" y="40" width="140" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="230" y="64" text-anchor="middle">LLM extractor</text><text x="230" y="82" text-anchor="middle" class="muted" font-size="11">1 greedy + 5 samples</text>
+        <rect x="330" y="40" width="140" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="400" y="64" text-anchor="middle">Evidence check</text><text x="400" y="82" text-anchor="middle" class="muted" font-size="11">code, not the model</text>
+        <rect x="500" y="40" width="160" height="56" rx="8" fill="var(--warn-soft)" stroke="var(--warn)"/><text x="580" y="64" text-anchor="middle">Calibrator + threshold</text><text x="580" y="82" text-anchor="middle" class="muted" font-size="11">calibration centres only</text>
+        <rect x="690" y="40" width="160" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="770" y="64" text-anchor="middle">FIGO 1988 rules</text><text x="770" y="82" text-anchor="middle" class="muted" font-size="11">lower bound</text>
+        <rect x="560" y="150" width="200" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="660" y="174" text-anchor="middle">AgentOutput (contract v0.1)</text><text x="660" y="192" text-anchor="middle" class="muted" font-size="11">value, evidence, confidence, abstain</text>
+        <rect x="160" y="150" width="200" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="260" y="174" text-anchor="middle">Registry check</text><text x="260" y="192" text-anchor="middle" class="muted" font-size="11">TCGA clinical table</text>
+        <rect x="330" y="232" width="260" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/><text x="460" y="256" text-anchor="middle">Super-agent v0 → case card</text><text x="460" y="274" text-anchor="middle" class="muted" font-size="11">conflicts, abstentions, clinician review</text>
+      </g>
+      <g stroke="var(--muted)" fill="none" marker-end="url(#ar)">
+        <path d="M130 68 H158"/><path d="M300 68 H328"/><path d="M470 68 H498"/><path d="M660 68 H688"/>
+        <path d="M770 96 V122 H660 V148"/><path d="M660 206 V260 H592"/><path d="M260 206 V260 H328"/>
+      </g>
+    </svg>
+  </div>
+  <table>
+    <tr><th>Part</th><th>File</th><th>State</th></tr>
+    <tr><td>Contract</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/contract.py">src/oac/contract.py</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>14 findings</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/fields.py">src/oac/fields.py</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>Centre splits and test lock</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/splits.py">src/oac/splits.py</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>Evidence verification</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/evidence.py">src/oac/evidence.py</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>Rules baseline</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/agents/rules_baseline.py">src/oac/agents/rules_baseline.py</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>LLM extractor, schema, prompt, backends</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/agents/llm_extractor.py">llm_extractor.py</a>, <a href="https://github.com/hamza3e/ovarian-agent-contract/tree/main/src/oac/llm">src/oac/llm/</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>FIGO 1988 rules</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/staging.py">src/oac/staging.py</a></td><td><span class="tag done">done</span></td></tr>
+    <tr><td>Calibrator and metrics</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/calibrate.py">calibrate.py</a>, <a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/src/oac/metrics.py">metrics.py</a></td><td><span class="tag next">code done, not fitted</span></td></tr>
+    <tr><td>Super-agent (LangGraph)</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/tree/main/src/oac/superagent">src/oac/superagent/</a></td><td><span class="tag done">done on saved outputs</span></td></tr>
+    <tr><td>Evaluation protocol</td><td><a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/eval/PROTOCOL.draft.md">eval/PROTOCOL.draft.md</a></td><td><span class="tag next">draft v0.2</span></td></tr>
+  </table>
+  <h3>AI-assisted engineering, shown rather than claimed</h3>
+  <p>The repository is built with Claude Code, and it says so. <a href="https://github.com/hamza3e/ovarian-agent-contract/blob/main/DECISIONS.md">DECISIONS.md</a> records for each decision what the AI proposed, what was checked and what was corrected. Two examples: a test-lock bug caught by the tests (D9), and a run-time estimate removed from the notebook because nobody had measured it (D17).</p>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-quiz" data-group="Check">
+  <h2>12. Test yourself</h2>
+  <p class="lead">Think of your own answer first, then open it.</p>
+  <details><summary>1. The report only says "para-aortic lymph nodes 2/5 positive"; the omentum is negative and the tumour is in one ovary. What is the FIGO 1988 and 2014 stage?</summary>
+    <div class="ans">1988: <b>IIIC</b> (retroperitoneal nodes alone give IIIC). 2014: <b>IIIA1</b> (retroperitoneal nodes only; IIIA1(i) or (ii) by the size of the nodal metastasis). Try "One ovary" and "Pelvic / para-aortic nodes positive" in the calculator. The report agent still says "≥ IIIC", because it cannot see stage IV.</div></details>
+  <details><summary>2. Why is residual disease hard to extract from a pathology report, and what should the agent do?</summary>
+    <div class="ans">It is a surgical finding: the surgeon sees what was left behind, the pathologist only sees the removed tissue. The report usually does not say, so the correct answer is <code>not_stated</code>. If there is a vague phrase (for example "optimal") and the agent is not sure, it abstains. It never fills the value in from the registry or clinical data.</div></details>
+  <details><summary>3. If calibration were fitted and tested on a random split, what problem would we miss?</summary>
+    <div class="ans">Site shift. Reports from the same centre would be in both calibration and test, so calibration would look good and could still fail at a new hospital. The models will be used at other centres, so the real question is calibration transfer.</div></details>
+  <details><summary>4. With constrained decoding, why is there still an "invalid_model_output" reason?</summary>
+    <div class="ans">If the output hits <code>max_tokens</code>, the JSON is cut off. The schema also allows a null value under "answered", which code catches. With the Claude backend, a refusal returns empty text. Broken output is recorded, not repaired, because repairing it would hide the failure.</div></details>
+  <details><summary>5. The quoted sentence is in the report but does not support the answer. Does the evidence check catch it?</summary>
+    <div class="ans">No. Verification proves existence, not support. Registry agreement catches some of these cases for grade, laterality and LVI. The next step is a rule-based check between the value and its quote (a "left" quote contradicts a "bilateral" answer), or a second checking model.</div></details>
+  <details><summary>6. What does self-consistency add on top of token probability?</summary>
+    <div class="ans">Token probability measures local confidence along one output path. Sampling shows whether the answer changes when other paths are tried. Even if the greedy answer has a high token probability, samples that disagree mean the report is ambiguous. The two signals complement each other, and the calibrator uses both.</div></details>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-gloss" data-group="Check">
+  <h2>13. Glossary</h2>
+  <table id="gloss"><tr><th>Term</th><th>Meaning</th></tr></table>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+<section id="s-refs" data-group="Check">
+  <h2>14. Short reading list</h2>
+  <ul>
+    <li>Prat J. <i>Staging classification for cancer of the ovary, fallopian tube, and peritoneum.</i> Int J Gynaecol Obstet 2014. The table only.</li>
+    <li>Cancer Genome Atlas Research Network. <i>Integrated genomic analyses of ovarian carcinoma.</i> Nature 2011. Abstract and Figure 1.</li>
+    <li>Tan et al. <i>Improving O-RADS Risk Stratification from Ultrasound Reports: A Comparative Evaluation of Hybrid versus End-to-End LLM Reasoning Strategies.</i> arXiv 2608.23061. Abstract.</li>
+    <li>Guo et al. <i>On Calibration of Modern Neural Networks.</i> ICML 2017. Reliability diagrams and ECE.</li>
+    <li>Wang et al. <i>Self-Consistency Improves Chain of Thought Reasoning in Language Models.</i> arXiv 2203.11171. Abstract and Figure 1.</li>
+    <li>Kadavath et al. <i>Language Models (Mostly) Know What They Know.</i> arXiv 2207.05221. Abstract.</li>
+    <li>Geifman and El-Yaniv. <i>Selective Classification for Deep Neural Networks.</i> NeurIPS 2017. The risk–coverage idea.</li>
+  </ul>
+  <div class="done-row"><button class="done-btn" type="button">Mark as read</button></div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var store = {
+    get: function(k, d){ try{ var v = localStorage.getItem("oac-guide." + k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+    set: function(k, v){ try{ localStorage.setItem("oac-guide." + k, JSON.stringify(v)); }catch(e){} }
+  };
+
+  /* theme */
+  var themes = ["auto", "light", "dark"], names = {auto:"auto", light:"light", dark:"dark"};
+  var theme = store.get("theme", "auto");
+  function applyTheme(){
+    if(theme === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", theme);
+    document.getElementById("themebtn").textContent = "Theme: " + names[theme];
+  }
+  document.getElementById("themebtn").onclick = function(){ theme = themes[(themes.indexOf(theme) + 1) % 3]; store.set("theme", theme); applyTheme(); };
+  applyTheme();
+
+  /* toc + progress */
+  var sections = Array.prototype.slice.call(document.querySelectorAll("main section"));
+  var done = store.get("done", {});
+  var toc = document.getElementById("toc"), lastGroup = null;
+  sections.forEach(function(s){
+    var g = s.getAttribute("data-group");
+    if(g !== lastGroup){ var gl = document.createElement("li"); gl.className = "group"; gl.textContent = g; toc.appendChild(gl); lastGroup = g; }
+    var li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + s.id; a.id = "toc-" + s.id;
+    a.innerHTML = '<span class="tick">✓</span><span></span>';
+    a.lastChild.textContent = s.querySelector("h2").textContent;
+    li.appendChild(a); toc.appendChild(li);
+    var b = s.querySelector(".done-btn");
+    if(b) b.onclick = function(){ done[s.id] = !done[s.id]; store.set("done", done); render(); };
+  });
+  function render(){
+    var n = 0;
+    sections.forEach(function(s){
+      var on = !!done[s.id]; if(on) n++;
+      document.getElementById("toc-" + s.id).classList.toggle("done", on);
+      var b = s.querySelector(".done-btn"); if(b){ b.classList.toggle("on", on); b.textContent = on ? "Read ✓" : "Mark as read"; }
+    });
+    document.getElementById("pbar").style.width = (100 * n / sections.length) + "%";
+    document.getElementById("ptext").textContent = n + " / " + sections.length + " sections";
+  }
+  render();
+
+  /* annotated synthetic report */
+  var parts = [
+    ["FINAL DIAGNOSIS. A. ", null],
+    ["Ovary, right", "laterality"], [", salpingo-oophorectomy: ", null],
+    ["High grade serous carcinoma", "histotype"], [", ", null], ["FIGO grade 3", "grade"], [". ", null],
+    ["Tumor involves the ovarian surface", "surface"], [". B. ", null],
+    ["Ovary, left", "laterality"], [", salpingo-oophorectomy: Metastatic carcinoma. C. ", null],
+    ["Omentum, omentectomy: Metastatic high grade serous carcinoma", "omentum"], [", ", null],
+    ["largest deposit 4.5 cm", "omsize"], [". D. ", null],
+    ["Uterus, hysterectomy: No tumor identified", "uterus"], [". E. ", null],
+    ["Pelvic lymph nodes: Metastatic carcinoma in 2/11 lymph nodes", "ln"], [". ", null],
+    ["Lymphovascular invasion is present", "lvi"], [". ", null],
+    ["Peritoneal washings: positive for malignant cells", "cyto"], [".", null]
+  ];
+  var F = {
+    laterality:{name:"laterality", color:"--f1", value:"bilateral", note:"Two separate parts (A right, B left) read together give bilateral. A sentence-level regex misses this."},
+    histotype:{name:"histotype", color:"--f2", value:"high_grade_serous", note:"high_grade_serous, because the words \"high grade serous\" appear."},
+    grade:{name:"grade", color:"--f3", value:"G3", note:"The three-tier grade is stated explicitly."},
+    surface:{name:"ovarian_surface_involvement", color:"--f4", value:"true", note:"Surface involvement: an IC criterion in stage I; here the stage is already III."},
+    omentum:{name:"omentum_involvement", color:"--f5", value:"true", note:"The omentum is outside the pelvis: at least stage III."},
+    omsize:{name:"omentum_largest_deposit_cm", color:"--f5", value:"4.5", note:"> 2 cm, so a FIGO IIIC criterion."},
+    uterus:{name:"uterus_involvement", color:"--f6", value:"false", note:"The uterus was examined and has no tumour: the answer is \"no\", not \"not stated\"."},
+    ln:{name:"lymph_nodes_positive / examined", color:"--f7", value:"2 / 11", note:"\"2/11\" splits into two fields: 2 positive, 11 examined."},
+    lvi:{name:"lymphovascular_invasion", color:"--f2", value:"true", note:"Stated as present."},
+    cyto:{name:"peritoneal_cytology", color:"--f3", value:"positive", note:"Tumour cells in the washings."}
+  };
+  var rep = document.getElementById("report");
+  parts.forEach(function(p){
+    if(!p[1]){ rep.appendChild(document.createTextNode(p[0])); return; }
+    var s = document.createElement("span"); s.className = "sp"; s.textContent = p[0];
+    s.setAttribute("data-f", p[1]); s.style.background = "var(" + F[p[1]].color + ")";
+    s.onclick = function(){ pick(p[1]); };
+    rep.appendChild(s);
+  });
+  var leg = document.getElementById("legend");
+  Object.keys(F).forEach(function(k){
+    var c = document.createElement("button"); c.type = "button"; c.className = "chip"; c.textContent = F[k].name; c.setAttribute("data-f", k);
+    c.style.background = "var(" + F[k].color + ")"; c.onclick = function(){ pick(k); }; leg.appendChild(c);
+  });
+  var extra = document.createElement("button"); extra.type = "button"; extra.className = "chip"; extra.textContent = "residual_disease";
+  extra.onclick = function(){ pick(null); document.getElementById("fieldout").innerHTML = "<b>residual_disease</b> = <code>not_stated</code>. It appears nowhere in the report, so the right answer is \"not in the report\". Filling it in from the registry is not allowed."; };
+  leg.appendChild(extra);
+  function pick(k){
+    Array.prototype.forEach.call(rep.querySelectorAll(".sp"), function(s){
+      var on = k && s.getAttribute("data-f") === k;
+      s.classList.toggle("hl", !!on); s.classList.toggle("dim", !!k && !on);
+    });
+    Array.prototype.forEach.call(leg.querySelectorAll(".chip"), function(c){ c.classList.toggle("on", c.getAttribute("data-f") === k); });
+    if(k){ var f = F[k]; document.getElementById("fieldout").innerHTML = "<b>" + f.name + "</b> = <code>" + f.value + "</code>. " + f.note; }
+  }
+
+  /* FIGO calculator */
+  var form = document.getElementById("figo");
+  var presets = [
+    ["Synthetic report (section 3)", {ov:"both", surface:true, wash:true, pelvic:"none", perit:"gt2", rpln:true}],
+    ["Question 1: para-aortic nodes only", {ov:"one", pelvic:"none", perit:"none", rpln:true}],
+    ["IIC example (1988 only)", {ov:"one", surface:true, pelvic:"ut", perit:"none"}],
+    ["Microscopic omentum", {ov:"both", pelvic:"ut", perit:"micro"}],
+    ["Inguinal node", {ov:"both", perit:"le2", ingln:true}],
+    ["Reset", {}]
+  ];
+  var pr = document.getElementById("presets");
+  presets.forEach(function(p){
+    var b = document.createElement("button"); b.type = "button"; b.textContent = p[0];
+    b.onclick = function(){ setForm(p[1]); }; pr.appendChild(b);
+  });
+  function setForm(v){
+    var d = {ov:"one", surface:false, wash:false, pelvic:"none", perit:"none", rpln:false, ingln:false, pleural:false, parench:false, extra:false};
+    Object.keys(v).forEach(function(k){ d[k] = v[k]; });
+    ["ov","pelvic","perit"].forEach(function(n){ form.querySelector('input[name="' + n + '"][value="' + d[n] + '"]').checked = true; });
+    ["surface","wash","rpln","ingln","pleural","parench","extra"].forEach(function(n){ form.querySelector('input[name="' + n + '"]').checked = d[n]; });
+    figo();
+  }
+  function val(n){ var e = form.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : null; }
+  function chk(n){ return form.querySelector('input[name="' + n + '"]').checked; }
+  function figo(){
+    var x = {ov:val("ov"), surface:chk("surface"), wash:chk("wash"), pelvic:val("pelvic"), perit:val("perit"),
+             rpln:chk("rpln"), ingln:chk("ingln"), pleural:chk("pleural"), parench:chk("parench"), extra:chk("extra")};
+    var s88, s14, why = [];
+    if(x.pleural || x.parench || x.extra){ s88 = "IV"; why.push("Distant metastasis: IV in both versions."); }
+    else if(x.perit === "gt2" || x.rpln || x.ingln){ s88 = "IIIC"; why.push("1988: peritoneum > 2 cm or regional (retroperitoneal / inguinal) nodes → IIIC."); }
+    else if(x.perit === "le2") s88 = "IIIB";
+    else if(x.perit === "micro") s88 = "IIIA";
+    else if(x.pelvic !== "none"){ s88 = (x.pelvic === "ut" ? "IIA" : "IIB"); if(x.surface || x.wash){ s88 = "IIC"; why.push("1988: pelvic extension plus surface / cytology → IIC. This stage does not exist in 2014."); } }
+    else { s88 = (x.ov === "one" ? "IA" : "IB"); if(x.surface || x.wash) s88 = "IC"; }
+
+    if(x.parench || x.extra || x.ingln){ s14 = "IVB"; if(x.ingln && !(x.parench || x.extra || x.pleural)) why.push("Inguinal node: IIIC in 1988, IVB in 2014."); }
+    else if(x.pleural) s14 = "IVA";
+    else if(x.perit === "gt2") s14 = "IIIC";
+    else if(x.perit === "le2") s14 = "IIIB";
+    else if(x.perit === "micro") s14 = "IIIA2";
+    else if(x.rpln){ s14 = "IIIA1"; why.push("Retroperitoneal nodes only: 1988 IIIC, 2014 IIIA1."); }
+    else if(x.pelvic !== "none") s14 = (x.pelvic === "ut" ? "IIA" : "IIB");
+    else { s14 = (x.ov === "one" ? "IA" : "IB"); if(x.surface && x.wash) s14 = "IC2 + IC3"; else if(x.surface) s14 = "IC2"; else if(x.wash) s14 = "IC3"; }
+
+    document.getElementById("v88").textContent = s88;
+    document.getElementById("v14").textContent = s14;
+    // highlight only when the stage itself differs (IIIA1 vs IIIC, IIA vs IIC), not for 2014 sub-stages (IC2 vs IC, IVB vs IV)
+    var base14 = s14.split(" ")[0].replace(/[0-9]+$/, "");
+    var differ = !(base14 === s88 || (s88 === "IV" && base14.indexOf("IV") === 0));
+    document.getElementById("s14").classList.toggle("diff", differ);
+    var av = document.getElementById("agentview");
+    if(s88 === "IV") av.innerHTML = "<b>Report agent:</b> distant metastasis does not come from the report; stage IV needs the super-agent with an imaging or clinical agent. The report agent's own output is at most a lower bound.";
+    else av.innerHTML = "<b>Report agent output (1988):</b> ≥ " + s88 + ". Stage IV cannot be ruled out; that needs an imaging or clinical agent.";
+    document.getElementById("why").textContent = why.join(" ");
+  }
+  form.addEventListener("change", figo);
+  figo();
+
+  /* reliability diagram (toy) */
+  var bars = [[0.55,0.52],[0.65,0.58],[0.75,0.63],[0.85,0.70],[0.95,0.78]];
+  var g = document.getElementById("relbars"), ns = "http://www.w3.org/2000/svg";
+  bars.forEach(function(b){
+    var x0 = 60 + (b[0] - 0.05) * 420, w = 0.1 * 420 - 6, h = b[1] * 230;
+    var r = document.createElementNS(ns, "rect");
+    r.setAttribute("x", x0 + 3); r.setAttribute("y", 250 - h); r.setAttribute("width", w); r.setAttribute("height", h);
+    r.setAttribute("rx", 3); r.setAttribute("fill", "var(--accent)"); r.setAttribute("opacity", "0.75"); g.appendChild(r);
+  });
+
+  /* risk-coverage toy */
+  var toy = [[0.98,1],[0.97,1],[0.96,1],[0.95,1],[0.93,1],[0.92,0],[0.91,1],[0.90,1],[0.88,1],[0.86,1],
+             [0.84,0],[0.82,1],[0.80,1],[0.77,0],[0.74,1],[0.70,0],[0.66,1],[0.61,0],[0.55,0],[0.48,0]];
+  var dots = document.getElementById("dots"), thr = document.getElementById("thr");
+  function rc(){
+    var t = parseFloat(thr.value), ans = 0, err = 0; dots.innerHTML = "";
+    toy.forEach(function(p){
+      var d = document.createElement("div"), a = p[0] >= t;
+      d.className = "dot " + (a ? (p[1] ? "ok" : "err") : "abs"); d.textContent = p[0].toFixed(2);
+      if(a){ ans++; if(!p[1]) err++; } dots.appendChild(d);
+    });
+    document.getElementById("thrv").textContent = t.toFixed(2);
+    document.getElementById("cov").textContent = ans + " / 20 (" + Math.round(100 * ans / 20) + "%)";
+    document.getElementById("risk").textContent = ans ? (err + " / " + ans + " (" + Math.round(100 * err / ans) + "%)") : "-";
+  }
+  thr.addEventListener("input", rc); rc();
+
+  /* glossary */
+  var G = [
+    ["HGSC / LGSC", "High-grade / low-grade serous carcinoma; two separate diseases"],
+    ["STIC", "Precursor lesion in the fallopian tube; the origin of many HGSCs"],
+    ["Specimen part", "A labelled part of the report (A right ovary, B omentum...)"],
+    ["Gross / microscopic description", "What is seen by eye / under the microscope"],
+    ["Synoptic report", "Structured summary at the end of a report"],
+    ["Frozen section", "Quick diagnosis during surgery"],
+    ["Peritoneal washings / cytology", "Examination of fluid from the abdominal cavity"],
+    ["Laterality", "Side: left, right or bilateral"],
+    ["LVI", "Lymphovascular invasion: tumour inside blood or lymph vessels"],
+    ["Debulking / cytoreduction", "Surgery to remove as much tumour as possible"],
+    ["PDS / NACT + IDS", "Surgery first / chemotherapy first, then interval surgery"],
+    ["Residual disease (R0)", "Tumour left after surgery (R0: none visible)"],
+    ["CRS", "Chemotherapy response score: response in the omentum after NACT (1 to 3)"],
+    ["HRD / PARP inhibitor", "Homologous recombination deficiency / a drug that targets it"],
+    ["Tumour board / MDT", "Multidisciplinary case meeting"],
+    ["Silver / gold label", "Approximate label from the registry / reference label given by an expert"],
+    ["Calibration / ECE / Brier", "Agreement of confidence with accuracy / mean calibration error / probability error score"],
+    ["Reliability diagram", "Plot of stated confidence against observed accuracy"],
+    ["Platt / isotonic", "Logistic / monotone step calibration curve"],
+    ["Abstention / selective prediction", "Not answering / answering only when confident"],
+    ["Risk–coverage, AURC", "Error rate against share answered; area under that curve"],
+    ["Site shift / calibration transfer", "Distribution difference between centres / whether calibration holds at a new centre"],
+    ["Conformal prediction", "A prediction set meant to contain the right answer at a chosen rate"],
+    ["Exchangeability", "The assumption that data points are interchangeable, from the same distribution"],
+    ["Constrained decoding", "Generation limited to tokens that keep the output valid against a schema"],
+    ["Greedy / sampling", "Always the most likely token / a random choice weighted by probability"],
+    ["Self-consistency", "How often the answer stays the same across several samples"],
+    ["Logprob", "Log-probability of a token"],
+    ["Evidence span", "A quote supporting an answer, located in the report"],
+    ["Provenance", "Origin record: model, prompt hash, code commit, input hash"],
+    ["Shadow mode", "Running a system in the background without affecting treatment"],
+    ["Federated learning", "Training by sharing model updates instead of moving data"],
+    ["Open weights / AWQ", "A model whose weights can be downloaded / a 4-bit quantisation method"]
+  ];
+  var gt = document.getElementById("gloss");
+  G.forEach(function(r){ var tr = document.createElement("tr"); tr.innerHTML = "<td><b></b></td><td></td>"; tr.cells[0].firstChild.textContent = r[0]; tr.cells[1].textContent = r[1]; gt.appendChild(tr); });
+})();
+</script>
+</body>
+</html>

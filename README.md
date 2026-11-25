@@ -17,7 +17,9 @@ report, and a confidence score to be calibrated on centres the prompt was not de
 centres, 41 of 44 abstentions came from evidence the code could not find in the report.
 
 The decision log ([DECISIONS.md](DECISIONS.md)) records each step: what Claude Code proposed, what I checked, and
-what I changed or dropped, including the gold-label pilot I stopped (D29).
+what I changed or dropped, including the gold-label pilot I stopped (D29). The
+[study guide](https://hamza3e.github.io/ovarian-agent-contract/study-guide.html) is the clinical and ML background I
+worked through, step by step, while building it.
 
 ## How it works
 ```
