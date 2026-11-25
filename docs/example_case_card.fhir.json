@@ -83,10 +83,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 52
        },
        "high": {
-        "value": 125
+        "value": 77
        }
       }
      }
@@ -114,10 +114,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 79
        },
        "high": {
-        "value": 127
+        "value": 106
        }
       }
      }
@@ -145,10 +145,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 108
        },
        "high": {
-        "value": 131
+        "value": 139
        }
       }
      }
@@ -176,10 +176,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 141
        },
        "high": {
-        "value": 133
+        "value": 174
        }
       }
      }
@@ -267,10 +267,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 176
        },
        "high": {
-        "value": 129
+        "value": 205
        }
       }
      }
@@ -298,10 +298,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 207
        },
        "high": {
-        "value": 122
+        "value": 229
        }
       }
      }
@@ -334,10 +334,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 231
        },
        "high": {
-        "value": 126
+        "value": 257
        }
       }
      }
@@ -365,10 +365,10 @@
       "url": "https://github.com/hamza3e/ovarian-agent-contract/fhir/evidence-offset",
       "valueRange": {
        "low": {
-        "value": 100
+        "value": 244
        },
        "high": {
-        "value": 104
+        "value": 248
        }
       }
      }
@@ -547,7 +547,7 @@
      {
       "role": "source",
       "what": {
-       "display": "report sha256 0000000000000000000000000000000000000000000000000000000000000000"
+       "display": "report sha256 a11b070765e96d2bc6fa7e2ce7e744e18dec1bf5137a56698848533c9268afcf"
       }
      }
     ]

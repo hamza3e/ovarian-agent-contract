@@ -275,3 +275,9 @@ These are the places where an LLM extractor should show its value. They become h
   | 0eacb59 | 4d18c19 | Practice set for annotator training (5 unscored dev reports)… |
   | 0ff688b | 627d6eb | Super-agent v0 as a LangGraph graph: FIGO rules, registry co… |
 
+
+**D31. README shows the example case card as an image (25 Nov).**
+- Reviewer feedback the author passed on: GitHub shows `docs/example_case_card.html` as source, not as a page, so the card was invisible from the README.
+- Claude Code rendered the synthetic card with headless Chrome to `docs/example_case_card.png` and embedded it under the super-agent heading.
+- Checked on the screenshot: every evidence offset was the placeholder 100 and the prompt hash was empty. Both looked like bugs.
+- Fix in `oac.superagent.demo`: the invented quotes now sit in an invented report string, so their offsets are real, and the example carries a synthetic prompt hash and an input hash of that string. Still no TCGA text.

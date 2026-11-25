@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 from oac.contract import AgentOutput
@@ -24,6 +25,20 @@ SYNTHETIC = {  # field -> (value, raw confidence, invented quote)
     "lymph_nodes_examined": (12, 1.0, "0/12"),
 }
 
+# Invented report text, used only to give the quotes real character offsets.
+SYNTHETIC_REPORT = (
+    "SYNTHETIC EXAMPLE, NOT A PATIENT REPORT.\n"
+    "Diagnosis: Primary ovarian carcinoma, high-grade serous carcinoma, poorly differentiated (grade 3).\n"
+    "Left ovary: involved by carcinoma.\n"
+    "Omentum: metastatic carcinoma, largest deposit 1.5 cm.\n"
+    "Lymph nodes: 0/12 positive.\n"
+)
+
+
+def _span(quote: str, after: int = 0) -> dict:
+    start = SYNTHETIC_REPORT.index(quote, after)
+    return {"quote": quote, "start": start, "end": start + len(quote), "verified": True}
+
 
 def synthetic_output() -> dict:
     fields = []
@@ -31,13 +46,14 @@ def synthetic_output() -> dict:
         if name in SYNTHETIC:
             v, c, q = SYNTHETIC[name]
             fields.append({"field": name, "status": "answered", "value": v, "confidence_raw": c,
-                           "evidence": [{"quote": q, "start": 100, "end": 100 + len(q), "verified": True}]})
+                           "evidence": [_span(q)]})
         elif name == "tube_involvement":
             fields.append({"field": name, "status": "abstained", "abstain_reason": "evidence_not_verified"})
         else:
             fields.append({"field": name, "status": "not_stated", "confidence_raw": 1.0})
     prov = {"agent_name": "llm_extractor.hybrid", "agent_version": "0.3.0", "model_id": "SYNTHETIC EXAMPLE",
-            "input_sha256": "0" * 64, "created_utc": "2026-11-24T00:00:00+00:00"}
+            "prompt_sha256": hashlib.sha256(b"synthetic example prompt").hexdigest(),
+            "input_sha256": hashlib.sha256(SYNTHETIC_REPORT.encode()).hexdigest(), "created_utc": "2026-11-24T00:00:00+00:00"}
     out = {"case_id": "SYNTHETIC-0001", "site_id": "XX", "modality": "pathology_report", "fields": fields, "provenance": prov}
     return AgentOutput.model_validate(out).model_dump(mode="json")
 
