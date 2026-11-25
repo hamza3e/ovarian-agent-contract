@@ -1,5 +1,8 @@
 # Annotation guide v0.1: ovarian cancer pathology reports (TCGA-OV)
 
+> Status (25 Nov 2026): gold labelling is paused after a pilot (DECISIONS D29). The guide and the offline tool are kept
+> for a future pathologist-led labelling round.
+
 Who: the gold-set annotator (70 reports) and the pathologist (15-report overlap). Read once (~15 min) before starting.
 The tool shows a short rule per field; this guide is the full version.
 

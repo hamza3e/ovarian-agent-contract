@@ -8,7 +8,7 @@
 | Text | OCR of scanned PDF reports, cleaned by the dataset authors. OCR errors remain ("lort ovary", "Quentum"). Median 5,848 characters (217–18,743). |
 | Population | Serous ovarian cystadenocarcinoma (TCGA-OV), mostly diagnosed 1999–2009, US sites plus BC Cancer (CA), Imperial College (UK), IHV Nigeria. Almost all FIGO 1988 stage III–IV, grade 3. Not representative of current practice (pre-2014 FIGO, little tubal-origin language, few BRCA/IHC mentions). |
 | Silver labels | Grade, laterality, lymphovascular invasion and stage, from the registry table. They were abstracted by each site and can disagree with the report; agreement is measured, not assumed. |
-| Gold labels | 70 reports labelled by the author with the annotation guide v0.1; 15 also by a pathologist. Labels (not text) are committed in `labels/`. |
+| Gold labels | None. A 70-report gold set was planned and paused after a pilot (DECISIONS D29): credible labels for these fields need a pathologist. The evaluation uses the registry (silver) instead. |
 | Splits | By site (see `src/oac/splits.py`): dev 109 / calibration 75 / test 187 reports. |
 | PHI | The reports are de-identified public data. Still, no report text is committed, logged or pasted into issues. |
 | Known biases | Site formats differ (templates, synoptic sections), so models can learn site style. Older terminology. English only. Very few low-stage or low-grade cases, so metrics on those classes are unstable. |

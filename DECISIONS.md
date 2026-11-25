@@ -239,3 +239,39 @@ These are the places where an LLM extractor should show its value. They become h
   flag, invalid review, FHIR without text); the dev run's 8 laterality conflicts match the D25 count (79 answered, 71 agree).
 - Version: langgraph 1.2.24 (optional extra `agent`; CI installs it).
 
+## 2026-11-25: no gold set; history rewritten before publication
+
+**D29. Gold labelling is dropped; the evaluation uses the registry (protocol draft v0.2).**
+- Pilot (23 Nov):
+  - the author labelled 2 test-site reports for the gold set and 5 dev practice reports;
+  - active time per practice report was 7 to 11 minutes;
+  - a field-by-field review of the practice labels against the annotation guide (by Claude Code, dev reports only) disagreed on 16 of 70 fields, mostly LVI, uterus involvement, omental deposit size and histotype.
+- Author's conclusion: these fields need pathology training to label reliably. A non-pathologist gold set would be a weak reference, and 70 reports would cost about 12 hours. The planned pathologist overlap was not available in time.
+- Decision (author, 24 Nov): no gold set for this version.
+  - Primary endpoints use registry agreement for grade, laterality and LVI.
+  - The calibrator is trained on registry agreement only.
+  - Fields without a registry value report answer and abstention rates only.
+  - What cannot be measured is listed in §7 of the protocol, including whether `not_stated` is correct.
+- The 2 gold labels are not used. The tool, guide and practice set stay for a future pathologist-led round.
+
+**D30. Commit author e-mail rewritten before the repo goes public (25 Nov).**
+- The author asked that the personal e-mail address not appear in a public history.
+- All 13 commits were rewritten to the GitHub noreply address. Content and messages are unchanged, but commit ids changed.
+- Run manifests in `runs/` (git-ignored) record the old ids. The mapping, old → new:
+
+  | old | new | commit |
+  |---|---|---|
+  | c056157 | be707fb | Day 1: agent contract v0.1, data pipeline, site splits, labe… |
+  | 5ac11c4 | 21e9c60 | Day 2: LLM extractor (vLLM + Claude API backends), confidenc… |
+  | c07c346 | 0c29d77 | Colab notebook for the VS Code Colab extension: embedded cod… |
+  | c1eb030 | 0ef09fb | Notebook: pin vllm 0.34.0, write every 16 reports, resume in… |
+  | ef0a624 | 0d4b743 | Prompt v0.2, multi-part evidence, meaning-word guard on fuzz… |
+  | abb9e1d | 7a6d403 | FIGO 1988 lower-bound rules, metrics (tie-preserving ECE, ri… |
+  | 7e80b94 | f68bff8 | Protocol draft: calibrator trained on gold + silver, gold-on… |
+  | dedf797 | d4cb22c | Prompt v0.3: evidence as a grammar-bounded list (max 3 quote… |
+  | 287b38f | 27413aa | Notebook smoke check tolerates truncated outputs… |
+  | d9ad1f7 | e1cf214 | Freeze system at prompt v0.3 in the protocol draft; log v0.3… |
+  | 827ec4c | 9c6bd61 | Label tool v0.2: active-time timer (idle > 2 min and hidden/… |
+  | 0eacb59 | 4d18c19 | Practice set for annotator training (5 unscored dev reports)… |
+  | 0ff688b | 627d6eb | Super-agent v0 as a LangGraph graph: FIGO rules, registry co… |
+

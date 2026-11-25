@@ -24,7 +24,7 @@ It is a research prototype on retrospective public data and is not for clinical 
 4. **Pinned everything:** data sha256 (`oac.fetch`), model id and revision, prompt hash, seeds, schema and contract versions.
 5. **The system under test is a pinned model run by a script.** Claude Code or Codex sessions never act as the extractor.
 6. **Evidence is verified by code** (`oac.evidence.locate`), never trusted from a model.
-7. Silver labels (TCGA clinical table) are registry values, not truth. The gold set (human labels) is the primary reference.
+7. Silver labels (TCGA clinical table) are registry values, not truth: report them as agreement, never as accuracy. There is no human gold set in this version (D29).
 
 ## How to run
 ```
